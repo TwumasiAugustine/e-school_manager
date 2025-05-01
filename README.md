@@ -48,7 +48,7 @@ A comprehensive, multi-vendor supported school management system built with mode
 
 ## Tech Stack
 
-- **Frontend**: React.js
+- **Frontend**: Next.js with Tailwind CSS
 - **Backend**: Node.js with Express.js
 - **Database**: MongoDB
 - **Authentication**: JWT
