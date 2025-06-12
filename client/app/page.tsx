@@ -4,16 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import RegisterModal from '@/components/RegisterModal';
-
-// Define the SchoolFormData interface to match what's in RegisterModal
-interface SchoolFormData {
-	schoolName: string;
-	schoolEmail: string;
-	mobile: string;
-	address: string;
-	tagline: string;
-	emergencyContact?: string;
-}
+import { SchoolFormData } from '@/types/school';
 
 const navLinks = [
 	{ href: '/', label: 'Home' },

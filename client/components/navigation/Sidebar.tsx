@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import ImgPlaceholder from '@/public/placeholder-avatar.png';
-import { getDashboardPathForRole } from '@/utils/navigationUtils';
 import {
 	FiHome,
 	FiUsers,
@@ -20,6 +19,7 @@ import {
 	FiPackage,
 	FiPlusCircle,
 	FiBell,
+	FiBook,
 	FiMonitor,
 	FiUser,
 	FiHelpCircle,
@@ -32,7 +32,7 @@ import {
 const navItems = [
 	{
 		id: 'dashboard',
-		href: '/dashboard', // Default href, will be overridden
+		href: '/dashboard',
 		icon: FiHome,
 		label: 'Dashboard',
 		hasSubmenu: false,
@@ -44,11 +44,15 @@ const navItems = [
 		label: 'Schools',
 		hasSubmenu: true,
 		submenu: [
-			{ id: 'school-list', href: '/school', label: 'School List' },
+			{
+				id: 'school-list',
+				href: '/school/list',
+				label: 'School List',
+			},
 			{
 				id: 'school-register',
-				href: '/school/register',
-				label: 'School Register',
+				href: '/school/add',
+				label: 'Add School',
 			},
 			{
 				id: 'school-inquiries',
@@ -67,28 +71,115 @@ const navItems = [
 		href: '/student',
 		icon: FiUsers,
 		label: 'Student',
-		hasSubmenu: false,
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'student-admission',
+				href: '/student/add',
+				label: 'Student Admission',
+			},
+			{
+				id: 'student-list',
+				href: '/student/list',
+				label: 'Student List',
+			},
+			{
+				id: 'student-manage',
+				href: '/student/manage',
+				label: 'Students Management',
+			},
+		],
 	},
 	{
 		id: 'staff',
 		href: '/staff',
 		icon: FiBriefcase,
-		label: 'staff',
-		hasSubmenu: false,
+		label: 'Staff',
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'staff-admission',
+				href: '/staff/add',
+				label: 'Add Staff',
+			},
+			{
+				id: 'staff-manage',
+				href: '/staff/list',
+				label: 'Student List',
+			},
+			{
+				id: 'manage-staff',
+				href: '/staff/manage',
+				label: 'Staff Management',
+			},
+		],
 	},
 	{
 		id: 'parent',
 		href: '/parent',
 		icon: FiUsers,
 		label: 'Parent',
-		hasSubmenu: false,
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'parent-admission',
+				href: '/parent/add',
+				label: 'Add Parent',
+			},
+			{
+				id: 'list-parent',
+				href: '/parent/list',
+				label: 'Parent List',
+			},
+			{
+				id: 'manage-parent',
+				href: '/parent/manage',
+				label: 'Parents Management',
+			},
+		],
+	},
+	{
+		id: 'subject',
+		href: '/subject',
+		icon: FiBook,
+		label: 'Subject',
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'add-subject',
+				href: '/subject/add',
+				label: 'Add Subject',
+			},
+			{
+				id: 'list-subject',
+				href: '/subject/list',
+				label: 'List Subject',
+			},
+		],
 	},
 	{
 		id: 'class',
 		href: '/class',
 		icon: FiBookOpen,
-		label: 'class',
-		hasSubmenu: false,
+		label: 'Class',
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'add-class',
+				href: '/class/add',
+				label: 'Add Class',
+			},
+			{
+				id: 'list-manage',
+				href: '/class/list',
+				label: 'Class List',
+			},
+			{
+				id: 'manage-student',
+				href: '/class/manage',
+				label: 'Class Management',
+			},
+		],
 	},
 	{
 		id: 'package',
@@ -146,21 +237,24 @@ const navItems = [
 	},
 ];
 const roleBasedNavItems = {
-	super_admin: ['dashboard', 'school', 'subscription', 'settings'],
+	super_admin: ['dashboard', 'school', 'subscription', 'settings', 'profile'],
 	admin: [
 		'dashboard',
-		'school',
 		'student',
 		'staff',
 		'parent',
+		'subject',
 		'class',
 		'subscription',
 		'settings',
+		'profile',
 	],
-	staff: ['dashboard', 'student', 'class', 'profile', 'settings'],
-	parent: ['dashboard', 'student', 'profile', 'settings'],
-	student: ['dashboard', 'class', 'profile', 'settings'],
+	staff: ['dashboard', 'student', 'class', 'profile', 'settings', 'profile'],
+	parent: ['dashboard', 'student', 'profile', 'settings', 'profile'],
+	student: ['dashboard', 'class', 'profile', 'settings', 'profile'],
 };
+
+import { StaticImageData } from 'next/image';
 
 interface SidebarProps {
 	isCollapsed: boolean;
@@ -168,15 +262,15 @@ interface SidebarProps {
 	userName?: string;
 	userEmail?: string;
 	userRole?: 'admin' | 'super_admin' | 'staff' | 'parent' | 'student';
-	userImage?: string;
+	userImage?: string | StaticImageData;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
 	isCollapsed,
 	setIsCollapsed,
-	userName = 'John Doe',
-	userEmail = 'john.doe@eschool.com',
-	userRole = 'super_admin', // Default userRole is 'super_admin'. Ensure this prop is correctly passed if overridden.
+	userName,
+	userEmail,
+	userRole,
 	userImage = ImgPlaceholder,
 }) => {
 	const pathname = usePathname();
@@ -200,8 +294,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 	};
 
 	// Helper to prefix href with userRole if not already present
-	const prefixHrefWithRole = (href: string, userRole: string) => {
-		if (!href || href === '#' || href.startsWith('http')) return href;
+	const prefixHrefWithRole = (href: string, userRole?: string) => {
+		if (!href || href === '#' || href.startsWith('http') || !userRole)
+			return href;
 		const rolePrefix = `/${userRole.toLowerCase()}`;
 		if (href.startsWith(rolePrefix)) return href;
 		if (href.startsWith('/')) return rolePrefix + href;
@@ -211,14 +306,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 	// Process navItems to update dashboard href and prefix all hrefs with userRole
 	const processedNavItems = navItems.map((item) => {
 		const newItem = { ...item };
-		// Remove special case for dashboard, treat like all others
 		if (item.hasSubmenu && item.submenu) {
 			newItem.submenu = item.submenu.map((sub) => ({
 				...sub,
 				href: prefixHrefWithRole(sub.href, userRole),
 			}));
 		}
-		if (item.href && item.href !== '#') {
+		if (typeof item.href === 'string' && item.href !== '#') {
 			newItem.href = prefixHrefWithRole(item.href, userRole);
 		}
 		return newItem;
@@ -240,28 +334,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 				}
 				if (item.hasSubmenu && item.submenu) {
 					return item.submenu.some((subItem) =>
-						subItem.label.toLowerCase().includes(searchTerm),
+						subItem.label?.toLowerCase().includes(searchTerm),
 					);
 				}
 				return false;
 		  })
 		: itemsAllowedByRole;
-
-	// --- Debugging Check ---
-	// If /superAdmin/dashboard is not working, check the console output below.
-	// 1. 'userRole' should be 'super_admin' (or the role you expect).
-	// 2. 'dashboardPath' should be '/superAdmin/dashboard' (or the correct path for the role).
-	// 3. 'final filteredNavItems' should contain an item with id: 'dashboard' and the correct href.
-	// If these are correct, the Sidebar is generating the link correctly.
-	// The issue is likely that the page for this route (e.g., app/superAdmin/dashboard/page.tsx) is missing or has errors.
-	console.log(
-		'Sidebar Debug: userRole:',
-		userRole,
-		'searchQuery:',
-		searchQuery,
-		'final filteredNavItems:',
-		filteredNavItems,
-	);
 
 	return (
 		<aside
@@ -304,7 +382,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 							<div className='relative'>
 								<Image
 									src={userImage}
-									alt={userName}
+									alt={userName || 'User'}
 									width={40}
 									height={40}
 									className='rounded-full border-2 border-emerald-500'
@@ -412,7 +490,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 					<div className='relative'>
 						<Image
 							src={userImage}
-							alt={userName}
+							alt={userName || 'User'}
 							width={32}
 							height={32}
 							className='rounded-full border-2 border-emerald-500'
@@ -607,13 +685,14 @@ const Sidebar: React.FC<SidebarProps> = ({
 																	key={
 																		subItem.id
 																	}>
+																	{' '}
 																	<Link
 																		href={
 																			subItem.href
 																		}
-																		className={`block py-2 px-3 text-sm rounded-md ${
+																		className={`block py-2 px-3 text-sm rounded-md relative ${
 																			isSubActive
-																				? 'bg-emerald-50 text-emerald-600 font-medium'
+																				? 'bg-emerald-50 text-emerald-600 font-medium border-l-4 border-emerald-500 pl-2'
 																				: 'text-gray-600 hover:bg-gray-100'
 																		}`}>
 																		{

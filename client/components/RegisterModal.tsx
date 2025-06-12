@@ -1,19 +1,11 @@
 import React, { useState } from 'react';
+import { SchoolFormData } from '@/types/school';
 
 interface RegisterModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (formData: SchoolFormData) => void;
 	initialStep?: number;
-}
-
-interface SchoolFormData {
-	schoolName: string;
-	schoolEmail: string;
-	mobile: string;
-	address: string;
-	tagline: string;
-	emergencyContact?: string;
 }
 
 const RegisterModal: React.FC<RegisterModalProps> = ({
