@@ -1,4 +1,4 @@
-import { School } from '../types';
+import { School } from '@/types/school';
 
 // This is a mock service that simulates API calls
 // In a real application, these would make actual API requests
@@ -16,6 +16,7 @@ const mockSchools: School[] = [
 		adminName: 'Jane Smith',
 		adminEmail: 'jane.smith@greenvalley.edu',
 		plan: 'Pro',
+		tagline: 'Empowering Future Leaders',
 	},
 	{
 		id: 2,
@@ -28,6 +29,7 @@ const mockSchools: School[] = [
 		adminName: 'John Doe',
 		adminEmail: 'john.doe@sunriseacademy.org',
 		plan: 'Basic',
+		tagline: 'Inspiring Excellence in Education',
 	},
 	{
 		id: 3,
@@ -40,6 +42,7 @@ const mockSchools: School[] = [
 		adminName: 'Emily Johnson',
 		adminEmail: 'emily.johnson@metrohs.edu',
 		plan: 'Premium',
+		tagline: 'Where Knowledge Meets Innovation',
 	},
 	{
 		id: 4,
@@ -52,6 +55,7 @@ const mockSchools: School[] = [
 		adminName: 'Michael Brown',
 		adminEmail: 'michael.brown@oakridge.edu',
 		plan: 'Basic',
+		tagline: 'Nurturing Young Minds',
 	},
 	{
 		id: 5,
@@ -64,6 +68,7 @@ const mockSchools: School[] = [
 		adminName: 'Sarah Wilson',
 		adminEmail: 'sarah.wilson@globaledu.org',
 		plan: 'Pro',
+		tagline: 'Connecting Cultures Through Learning',
 	},
 ];
 

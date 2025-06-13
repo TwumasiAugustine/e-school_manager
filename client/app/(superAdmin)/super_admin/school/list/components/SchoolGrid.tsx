@@ -10,19 +10,7 @@ import {
 	FaEnvelope,
 	FaMapMarkerAlt,
 } from 'react-icons/fa';
-
-interface School {
-	id: number;
-	name: string;
-	logo: string;
-	email: string;
-	phone: string;
-	isEmailVerified: boolean;
-	address: string;
-	adminName: string;
-	adminEmail: string;
-	plan: string;
-}
+import { School } from '@/types/school';
 
 interface SchoolGridProps {
 	schools: School[];

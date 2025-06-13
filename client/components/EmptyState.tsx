@@ -14,7 +14,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   message,
   buttonText,
   buttonAction,
-  icon = <FiAlertCircle size={40} className="text-gray-400" />
+  icon = <FiAlertCircle size={40} className="text-red-400" />
 }) => {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">

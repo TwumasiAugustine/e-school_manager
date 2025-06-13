@@ -50,7 +50,7 @@ const navItems = [
 				label: 'School List',
 			},
 			{
-				id: 'school-register',
+				id: 'add-school',
 				href: '/school/add',
 				label: 'Add School',
 			},
@@ -58,11 +58,6 @@ const navItems = [
 				id: 'school-inquiries',
 				href: '/school/inquiries',
 				label: 'School Inquiries',
-			},
-			{
-				id: 'manage-school',
-				href: '/school/manage',
-				label: 'Manage Schools',
 			},
 		],
 	},

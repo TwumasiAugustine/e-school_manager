@@ -8,20 +8,7 @@ import {
 	FaTrash,
 } from 'react-icons/fa';
 import SchoolGrid from './SchoolGrid';
-
-interface School {
-	id: number;
-	name: string;
-	logo: string;
-	email: string;
-	phone: string;
-	isEmailVerified: boolean;
-	address: string;
-	adminName: string;
-	adminEmail: string;
-	plan: string;
-}
-
+import { School } from '@/types/school';
 interface SchoolTableProps {
 	schools: School[];
 	currentPage: number;

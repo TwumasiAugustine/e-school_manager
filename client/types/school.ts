@@ -20,14 +20,15 @@ export interface SchoolInquiryData extends SchoolFormData {
 
 // School model for listing and management
 export interface School {
-  id: number;
-  name: string;
-  logo: string;
-  email: string;
-  phone: string;
-  isEmailVerified: boolean;
-  address: string;
-  adminName: string;
-  adminEmail: string;
-  plan: string;
+	id: number;
+	name: string;
+	logo: string;
+	email: string;
+	phone: string;
+	isEmailVerified: boolean;
+	address: string;
+	adminName: string;
+	adminEmail: string;
+	plan: string;
+	tagline: string;
 }

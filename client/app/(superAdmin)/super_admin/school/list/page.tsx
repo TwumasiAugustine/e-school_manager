@@ -12,8 +12,8 @@ import EmptyState from '@/components/EmptyState';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import HeadingWithBadge from '@/components/HeadingWithBadge';
 import { useToast } from '@/providers/ToastProvider';
-import { School } from './types';
 import { SchoolService } from './services/SchoolService';
+import { School } from '@/types/school';
 
 const SchoolListPage = () => {
 	const [schools, setSchools] = useState<School[]>([]);
@@ -103,7 +103,7 @@ const SchoolListPage = () => {
 	};
 
 	const handleEditSchool = (school: School) => {
-		// Navigate to edit page or open edit modal
+		// Navigate to edit page with the school id
 		router.push(`/super_admin/school/edit/${school.id}`);
 	};
 
@@ -229,7 +229,7 @@ const SchoolListPage = () => {
 					/>
 					<button
 						onClick={() => router.push('/super_admin/school/add')}
-						className='px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2'>
+						className='px-4 py-2 text-sm md:text-base bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2'>
 						Add New School
 					</button>
 				</div>
@@ -298,7 +298,7 @@ const SchoolListPage = () => {
 				isOpen={deleteConfirmOpen}
 				title='Delete School'
 				message='Are you sure you want to delete this school? This action cannot be undone.'
-				confirmText='Delete'
+				confirmText='Delete School'
 				cancelText='Cancel'
 				onConfirm={confirmDeleteSchool}
 				onCancel={() => setDeleteConfirmOpen(false)}

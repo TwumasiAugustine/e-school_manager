@@ -1,5 +1,16 @@
 import React from 'react';
-import { FiX } from 'react-icons/fi';
+import {
+	FiX,
+	FiMail,
+	FiPhone,
+	FiUser,
+	FiMapPin,
+	FiCalendar,
+	FiMessageSquare,
+	FiCheckCircle,
+	FiXCircle,
+	FiAlertCircle,
+} from 'react-icons/fi';
 import { SchoolInquiry } from '../types';
 import Modal from '@/components/Modal';
 
@@ -27,8 +38,9 @@ const InquiryModal: React.FC<InquiryModalProps> = ({
 			size='lg'
 			header={
 				<div className='flex justify-between items-center'>
-					<h3 className='text-lg font-semibold text-gray-900'>
-						School Inquiry Details
+					<h3 className='text-lg font-semibold text-gray-900 flex items-center gap-2'>
+						<FiAlertCircle className='text-emerald-600' /> School
+						Inquiry Details
 					</h3>
 					<button
 						type='button'
@@ -43,51 +55,61 @@ const InquiryModal: React.FC<InquiryModalProps> = ({
 				<div className='sm:flex sm:flex-row-reverse'>
 					<button
 						type='button'
-						className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm'
+						className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm gap-2 items-center'
 						onClick={() => onApprove(inquiry.id)}>
-						Approve
+						<FiCheckCircle /> Approve
 					</button>
 					<button
 						type='button'
-						className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm'
+						className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm gap-2 items-center'
 						onClick={() => onReject(inquiry.id)}>
-						Reject
+						<FiXCircle /> Reject
 					</button>
 					<button
 						type='button'
-						className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm'
+						className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm gap-2 items-center'
 						onClick={onClose}>
-						Cancel
+						<FiX /> Cancel
 					</button>
 				</div>
 			}>
 			<div className='space-y-4'>
 				<div>
-					<h4 className='text-sm font-medium text-gray-500'>School Name</h4>
-					<p className='mt-1 text-sm text-gray-900'>{inquiry.schoolName}</p>
+					<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+						<FiUser /> School Name
+					</h4>
+					<p className='mt-1 text-sm text-gray-900'>
+						{inquiry.schoolName}
+					</p>
 				</div>
 
 				<div>
-					<h4 className='text-sm font-medium text-gray-500'>
-						Contact Information
+					<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+						<FiMail /> Contact Information
 					</h4>
-					<p className='mt-1 text-sm text-gray-900'>Phone: {inquiry.mobile}</p>
-					<p className='mt-1 text-sm text-gray-900'>
-						Email: {inquiry.schoolEmail}
+					<p className='mt-1 text-sm text-gray-900 flex items-center gap-2'>
+						<FiPhone /> {inquiry.mobile}
+					</p>
+					<p className='mt-1 text-sm text-gray-900 flex items-center gap-2'>
+						<FiMail /> {inquiry.schoolEmail}
 					</p>
 				</div>
 
 				{inquiry.address && (
 					<div>
-						<h4 className='text-sm font-medium text-gray-500'>Address</h4>
-						<p className='mt-1 text-sm text-gray-900'>{inquiry.address}</p>
+						<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+							<FiMapPin /> Address
+						</h4>
+						<p className='mt-1 text-sm text-gray-900'>
+							{inquiry.address}
+						</p>
 					</div>
 				)}
 
 				{inquiry.contactPerson && (
 					<div>
-						<h4 className='text-sm font-medium text-gray-500'>
-							Contact Person
+						<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+							<FiUser /> Contact Person
 						</h4>
 						<p className='mt-1 text-sm text-gray-900'>
 							{inquiry.contactPerson}
@@ -97,7 +119,9 @@ const InquiryModal: React.FC<InquiryModalProps> = ({
 
 				{inquiry.inquiryDate && (
 					<div>
-						<h4 className='text-sm font-medium text-gray-500'>Inquiry Date</h4>
+						<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+							<FiCalendar /> Inquiry Date
+						</h4>
 						<p className='mt-1 text-sm text-gray-900'>
 							{inquiry.inquiryDate}
 						</p>
@@ -106,13 +130,19 @@ const InquiryModal: React.FC<InquiryModalProps> = ({
 
 				{inquiry.message && (
 					<div>
-						<h4 className='text-sm font-medium text-gray-500'>Message</h4>
-						<p className='mt-1 text-sm text-gray-900'>{inquiry.message}</p>
+						<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+							<FiMessageSquare /> Message
+						</h4>
+						<p className='mt-1 text-sm text-gray-900'>
+							{inquiry.message}
+						</p>
 					</div>
 				)}
 
 				<div>
-					<h4 className='text-sm font-medium text-gray-500'>Current Status</h4>
+					<h4 className='text-sm font-medium text-gray-500 flex items-center gap-2'>
+						<FiAlertCircle /> Current Status
+					</h4>
 					<span
 						className={`mt-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full 
                 ${

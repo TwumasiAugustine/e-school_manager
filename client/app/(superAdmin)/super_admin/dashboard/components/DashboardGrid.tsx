@@ -22,6 +22,15 @@ const DashboardGrid: React.FC = () => {
         icon={<FaSchool className="h-8 w-8" />}
       />
       <StatCard
+        title="Active Schools"
+        value="0"
+        subTitle="This Month"
+        subValue="0"
+        bgColor="bg-indigo-500"
+        textColor="text-white"
+        icon={<FaSchool className="h-8 w-8" />}
+      />
+      <StatCard
         title="Total Students"
         value="0"
         subTitle="This Month"

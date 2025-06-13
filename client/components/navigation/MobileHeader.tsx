@@ -52,9 +52,9 @@ const navLinks = [
 				label: 'School Inquiries',
 			},
 			{
-				id: 'manage-school',
+				id: 'add-school',
 				href: '/school/add',
-				label: 'Manage Schools',
+				label: 'Add School',
 			},
 		],
 	},

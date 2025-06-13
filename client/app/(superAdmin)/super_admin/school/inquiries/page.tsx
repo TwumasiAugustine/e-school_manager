@@ -294,7 +294,7 @@ const SchoolInquiries = () => {
 				isOpen={deleteConfirmOpen}
 				title='Delete School Inquiry'
 				message='Are you sure you want to delete this school inquiry? This action cannot be undone.'
-				confirmText='Delete'
+				confirmText='Delete Inquiry'
 				onConfirm={confirmDeleteInquiry}
 				onCancel={() => {
 					setDeleteConfirmOpen(false);
