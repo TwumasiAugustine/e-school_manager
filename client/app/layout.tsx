@@ -7,7 +7,6 @@ import MobileHeader from '@/components/navigation/MobileHeader';
 import ImgPlaceholder from '@/public/placeholder-avatar.png';
 import { Suspense, useState, useEffect, useRef } from 'react';
 import Loader from './loading';
-import { ToastProvider } from '@/providers/ToastProvider';
 import ToastContainer from '@/components/ToastContainer';
 
 const geistSans = Geist({
@@ -66,51 +65,49 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body className={`${bodyClassNames} flex flex-col min-h-screen`}>
-				<ToastProvider>
-					<div className='flex flex-col md:flex-row flex-1'>
-						{/* Mobile-only Header - only visible on mobile devices */}
+				<div className='flex flex-col md:flex-row flex-1'>
+					{/* Mobile-only Header - only visible on mobile devices */}
+					{showNavAndSidebar && (
+						<MobileHeader
+							userName='Admin User'
+							userEmail='admin@eschool.com'
+							userRole='admin'
+							userImage={ImgPlaceholder}
+						/>
+					)}
+					<div className='flex flex-1'>
 						{showNavAndSidebar && (
-							<MobileHeader
-								userName='Admin User'
-								userEmail='admin@eschool.com'
-								userRole='super_admin'
-								userImage={ImgPlaceholder}
-							/>
+							<aside
+								ref={sidebarContainerRef}
+								className='md:flex flex-shrink-0'>
+								<Sidebar
+									isCollapsed={isSidebarCollapsed}
+									setIsCollapsed={setIsSidebarCollapsed}
+									userName='Admin User'
+									userEmail='admin@eschool.com'
+									userRole='admin'
+									userImage={ImgPlaceholder}
+								/>
+							</aside>
 						)}
-						<div className='flex flex-1'>
-							{showNavAndSidebar && (
-								<aside
-									ref={sidebarContainerRef}
-									className='md:flex flex-shrink-0'>
-									<Sidebar
-										isCollapsed={isSidebarCollapsed}
-										setIsCollapsed={setIsSidebarCollapsed}
-										userName='Admin User'
-										userEmail='admin@eschool.com'
-										userRole='super_admin'
-										userImage={ImgPlaceholder}
-									/>
-								</aside>
-							)}
-							<div
-								className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${
-									showNavAndSidebar
-										? isSidebarCollapsed
-											? 'md:ml-16'
-											: 'md:ml-64'
-										: ''
-								}`}>
-								<main className='flex-1 p-4'>
-									<Suspense fallback={<Loader />}>
-										{children}
-									</Suspense>
-								</main>
-								{/* <Footer isCollapsed={isSidebarCollapsed} /> */}
-							</div>
+						<div
+							className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${
+								showNavAndSidebar
+									? isSidebarCollapsed
+										? 'md:ml-16'
+										: 'md:ml-64'
+									: ''
+							}`}>
+							<main className='flex-1 p-4'>
+								<Suspense fallback={<Loader />}>
+									{children}
+								</Suspense>
+							</main>
+							{/* <Footer isCollapsed={isSidebarCollapsed} /> */}
 						</div>
 					</div>
-					<ToastContainer position='top-right' />
-				</ToastProvider>
+				</div>
+				<ToastContainer position='top-right' />
 			</body>
 		</html>
 	);

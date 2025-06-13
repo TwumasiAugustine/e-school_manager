@@ -9,7 +9,6 @@ import SMSGatewayCard from '@/components/SMSGatewayCard';
 import {
 	FaUsers,
 	FaUserGraduate,
-	FaMoneyBillWave,
 	FaChartLine,
 } from 'react-icons/fa';
 
@@ -36,19 +35,19 @@ const DashboardGrid: React.FC = () => {
 				icon={<FaUserGraduate className='h-8 w-8' />}
 			/>
 			<StatCard
-				title='Revenue'
+				title='Total Guardians'
 				value='0'
 				subTitle='This Month'
-				subValue='$ 0'
+				subValue='$0'
 				bgColor='bg-red-400'
 				textColor='text-white'
-				icon={<FaMoneyBillWave className='h-8 w-8' />}
+				icon={<FaUsers className='h-8 w-8' />}
 			/>
 			<StatCard
-				title='Total Profit'
+				title='Total Classes'
 				value='0'
 				subTitle='This Month'
-				subValue='$ 0'
+				subValue='0'
 				bgColor='bg-blue-500'
 				textColor='text-white'
 				icon={<FaChartLine className='h-8 w-8' />}

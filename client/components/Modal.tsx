@@ -1,4 +1,5 @@
 import React from 'react';
+import { AiOutlineClose } from 'react-icons/ai';
 
 interface ModalProps {
 	isOpen: boolean;
@@ -29,12 +30,20 @@ const Modal: React.FC<ModalProps> = ({
 	return (
 		<div
 			className="fixed inset-0 bg-gray-200 backdrop-blur-lg bg-opacity-50 transition-opacity overflow-y-auto h-full w-full z-50 flex justify-center items-center"
-			
 		>
 			<div
 				className={`bg-white rounded-lg shadow-lg w-full ${sizeClasses[size]} mx-4 relative`}
-				
 			>
+				<div className="absolute right-0 top-0 pt-4 pr-4">
+					<button
+						type="button"
+						className="text-gray-400 hover:text-gray-500 transition-colors"
+						onClick={onClose}
+					>
+						<span className="sr-only">Close</span>
+						<AiOutlineClose className="h-6 w-6" />
+					</button>
+				</div>
 				{header ? (
 					<div className="px-6 pt-5 pb-2 border-b border-gray-300">
 						{header}
@@ -54,5 +63,6 @@ const Modal: React.FC<ModalProps> = ({
 		</div>
 	);
 };
+
 
 export default Modal;

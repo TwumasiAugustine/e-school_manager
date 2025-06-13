@@ -20,7 +20,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 	cancelText = 'Cancel',
 	onConfirm,
 	onCancel,
-	type = 'warning',
+	type = 'danger',
 }) => {
 	if (!isOpen) return null;
 
