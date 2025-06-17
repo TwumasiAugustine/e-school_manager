@@ -14,11 +14,17 @@ import { showToast } from '@/components/ToastContainer';
 const initialTeachers: Teacher[] = [
   { id: 't1', name: 'John Doe' },
   { id: 't2', name: 'Jane Smith' },
+  { id: 't3', name: 'Bob Johnson' },
+  { id: 't4', name: 'Alice Brown' },
+  { id: 't5', name: 'Charlie Davis' },
 ];
 
 const initialClasses: Class[] = [
-  { id: 1, name: 'Math 101', teacherId: 't1', tuitionFee: 500 },
-  { id: 2, name: 'Science 201', teacherId: 't2', tuitionFee: 600 },
+  { id: 1, name: 'BS 5', teacherId: 't1', tuitionFee: 500 },
+  { id: 2, name: 'BS 6', teacherId: 't2', tuitionFee: 600 },
+  { id: 3, name: 'BS 7', teacherId: 't1', tuitionFee: 500 },
+  { id: 4, name: 'BS 8', teacherId: 't2', tuitionFee: 600 },
+  
 ];
 
 const ClassPage: React.FC = () => {

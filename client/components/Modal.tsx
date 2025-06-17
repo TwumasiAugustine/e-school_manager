@@ -29,7 +29,7 @@ const Modal: React.FC<ModalProps> = ({
 	if (!isOpen) return null;
 	return (
 		<div
-			className="fixed inset-0 bg-gray-200 backdrop-blur-lg bg-opacity-50 transition-opacity overflow-y-auto h-full w-full z-50 flex justify-center items-center"
+			className="fixed max-w-8xl inset-0 bg-gray-200 backdrop-blur-lg bg-opacity-50 transition-opacity overflow-y-auto h-full w-full z-50 flex justify-center items-center"
 		>
 			<div
 				className={`bg-white rounded-lg shadow-lg w-full ${sizeClasses[size]} mx-4 relative`}

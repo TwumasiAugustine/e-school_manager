@@ -2,9 +2,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import CreateSemester from './components/CreateSemester';
 import ListSemesters from './components/ListSemesters';
-import HeadingWithBadge from '@/components/HeadingWithBadge';
-import SemesterActionsBar from './components/SemesterActionsBar';
-import { FiCalendar } from 'react-icons/fi';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { showToast } from '@/components/ToastContainer'; // Changed toast import
 import type { Semester } from '@/types/semester';
@@ -94,20 +91,16 @@ const setCurrentSemesterAPI = async (
 	};
 };
 
-
-
-
 const SemesterPage = () => {
 	const [semesters, setSemesters] = useState<Semester[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentView, setCurrentView] = useState<'list' | 'grid'>('list');
-	const [currentFilter, setCurrentFilter] = useState<'all' | 'trashed'>(
-		'all',
-	);
+	const [currentFilter] = useState<'all' | 'trashed'>('all');
 	const [confirmOpen, setConfirmOpen] = useState(false);
 	const [semesterToDelete, setSemesterToDelete] = useState<Semester | null>(
 		null,
 	);
+	const [isSmallScreen, setIsSmallScreen] = useState(false);
 
 	const loadSemesters = useCallback(async () => {
 		setIsLoading(true);
@@ -124,6 +117,22 @@ const SemesterPage = () => {
 	useEffect(() => {
 		loadSemesters();
 	}, [loadSemesters]);
+
+	useEffect(() => {
+		const checkScreen = () => setIsSmallScreen(window.innerWidth < 768);
+		checkScreen();
+		window.addEventListener('resize', checkScreen);
+		return () => window.removeEventListener('resize', checkScreen);
+	}, []);
+
+	const handleViewChange = () => {
+		// Toggle between grid and list, but always grid on small screens
+		if (isSmallScreen) {
+			setCurrentView('grid');
+		} else {
+			setCurrentView((prev) => (prev === 'list' ? 'grid' : 'list'));
+		}
+	};
 
 	const handleCreateSemester = async (
 		newSemesterData: Omit<Semester, 'id' | 'isCurrent' | 'status'>,
@@ -220,39 +229,38 @@ const SemesterPage = () => {
 				isLoading={isLoading}
 			/>
 			<div className='mt-8 bg-white p-6 rounded-lg shadow-md'>
-				<HeadingWithBadge
-					title='List Semesters'
-					badgeText={`${filteredSemesters.length}`}
-					icon={FiCalendar}
-					level='h2' // Explicitly set level
-					iconColor='text-slate-700' // Example color, adjust as needed
-                />
-                
 				<ListSemesters
 					semesters={filteredSemesters}
 					isLoading={isLoading}
 					onEdit={handleEditSemester}
 					onDelete={(_id) => {
-						// Use the correct delete handler for the ConfirmDialog
 						const semester = filteredSemesters.find(
 							(s) => s.id === _id,
 						);
 						if (semester) handleRequestDelete(semester);
 					}}
 					onSetCurrent={handleSetCurrentSemester}
-					currentView={currentView}
+					currentView={isSmallScreen ? 'grid' : currentView}
 					currentFilter={currentFilter}
+					onViewChange={handleViewChange}
+					onRefresh={handleRefresh}
+					onExport={handleExport}
+					isSmallScreen={isSmallScreen}
 				/>
+
 			</div>
-			
 			<ConfirmDialog
-				isOpen={confirmOpen}
-				title='Delete Semester'
-				message={`Are you sure you want to delete the semester "${semesterToDelete?.name}"? This action cannot be undone.`}
 				confirmText='Delete'
+				isOpen={confirmOpen}
+				type='danger'
 				onConfirm={handleConfirmDelete}
 				onCancel={handleCancelDelete}
-				type='danger'
+				message={
+					semesterToDelete
+						? `Are you sure you want to delete "${semesterToDelete.name}"?`
+						: 'Are you sure you want to delete this semester?'
+				}
+				title='Confirm Deletion'
 			/>
 		</div>
 	);

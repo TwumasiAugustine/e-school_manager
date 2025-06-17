@@ -9,8 +9,6 @@ interface SemesterActionsBarProps {
 	currentView?: 'grid' | 'list';
 	onSearch?: (query: string) => void;
 	searchQuery?: string;
-	onFilterChange?: (filter: 'all' | 'trashed') => void;
-	currentFilter?: 'all' | 'trashed';
 }
 
 const SemesterActionsBar: React.FC<SemesterActionsBarProps> = ({
@@ -18,12 +16,10 @@ const SemesterActionsBar: React.FC<SemesterActionsBarProps> = ({
 	onExport,
 	onViewChange,
 	currentView = 'list',
-	onFilterChange,
-	currentFilter = 'all',
 }) => {
 	return (
-		<div className='flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4 px-2 sm:px-4'>
-			<div className='flex flex-wrap gap-2 bg-white shadow-md rounded-xl p-2 sm:p-3'>
+		<div className='flex flex-col md:flex-row w-fit md:items-center md:justify-between gap-4 mb-4 md:px-2'>
+			<div className='flex flex-wrap gap-2 md:items-end bg-white shadow-md rounded-xl p-2 sm:p-3'>
 				<button
 					onClick={onRefresh}
 					className='flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-300'
@@ -61,30 +57,6 @@ const SemesterActionsBar: React.FC<SemesterActionsBarProps> = ({
 						Export
 					</span>
 				</button>
-				{onFilterChange && (
-					<div className='flex items-center text-sm font-medium'>
-						<button
-							onClick={() => onFilterChange('all')}
-							className={`px-3 py-2 rounded-l-md transition-colors ${
-								currentFilter === 'all'
-									? 'bg-slate-700 text-white'
-									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-							}`}
-						>
-							All
-						</button>
-						<button
-							onClick={() => onFilterChange('trashed')}
-							className={`px-3 py-2 rounded-r-md transition-colors ${
-								currentFilter === 'trashed'
-									? 'bg-slate-700 text-white'
-									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-							}`}
-						>
-							Trashed
-						</button>
-					</div>
-				)}
 			</div>
 		</div>
 	);

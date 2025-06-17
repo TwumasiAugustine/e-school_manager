@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import type { Class, Teacher } from '@/types/class';
+import MultiSelect from '@/components/MultiSelect';
 
 interface ClassFormProps {
 	onSubmit: (cls: Class) => void;
@@ -18,14 +19,16 @@ const ClassForm: React.FC<ClassFormProps> = ({
 	mode = 'create',
 }) => {
 	const [name, setName] = useState('');
-	const [teacherId, setTeacherId] = useState('');
+	// Removed unused teacherId state
 	const [tuitionFee, setTuitionFee] = useState('');
+	const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
 
 	useEffect(() => {
 		if (classObj) {
 			setName(classObj.name || '');
-			setTeacherId(classObj.teacherId || '');
+			// setTeacherId(classObj.teacherId || ''); // Removed unused teacherId state
 			setTuitionFee(classObj.tuitionFee?.toString() || '');
+			setSelectedTeachers(classObj.teacherId ? [classObj.teacherId] : []);
 		} else {
 			handleReset();
 		}
@@ -33,17 +36,19 @@ const ClassForm: React.FC<ClassFormProps> = ({
 
 	const handleReset = () => {
 		setName('');
-		setTeacherId('');
+		// setTeacherId(''); // Removed unused teacherId state
 		setTuitionFee('');
+		setSelectedTeachers([]);
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (!name.trim() || !teacherId || !tuitionFee) return;
+	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		if (!name.trim() || selectedTeachers.length === 0 || !tuitionFee)
+			return;
 		onSubmit({
 			id: classObj?.id || Date.now(),
 			name: name.trim(),
-			teacherId,
+			teacherId: selectedTeachers[0],
 			tuitionFee: parseFloat(tuitionFee),
 		});
 		if (mode === 'create') handleReset();
@@ -52,44 +57,38 @@ const ClassForm: React.FC<ClassFormProps> = ({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className='space-y-4 flex flex-col'>
-			<div className='flex flex-col md:flex-row gap-4'>
-				<div className='flex-1 flex flex-col gap-2'>
+			className='space-y-6 flex flex-col'>
+			<div className='flex flex-col gap-6'>
+				<div>
 					<label className='block text-sm font-medium text-gray-700 mb-1'>
 						Name <span className='text-red-500'>*</span>
 					</label>
 					<input
 						type='text'
-						className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-700'
+						className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 bg-white'
 						placeholder='Class Name'
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						required
 					/>
 				</div>
-				<div className='flex-1 flex flex-col gap-2'>
-					<label
-						htmlFor='teacher-select'
-						className='block text-sm font-medium text-gray-700 mb-1'>
-						Teacher <span className='text-red-500'>*</span>
-					</label>
-					<select
-						id='teacher-select'
-						className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 bg-white'
-						value={teacherId}
-						onChange={(e) => setTeacherId(e.target.value)}
-						required>
-						<option value=''>Select a teacher</option>
-						{teachers.map((teacher) => (
-							<option
-								key={teacher.id}
-								value={teacher.id}>
-								{teacher.name}
-							</option>
-						))}
-					</select>
+				<div>
+					<MultiSelect
+					required={true}
+						label="Teacher"
+						options={teachers.map((t) => t.name)}
+						placeholder='Search and select teacher...'
+						onChange={(selected) => {
+							setSelectedTeachers(selected);
+							// setTeacherId(
+							// 	teachers.find((t) => t.name === selected[0])
+							// 		?.id || '',
+							// );
+						}}
+						maxSelected={1}
+					/>
 				</div>
-				<div className='flex-1 flex flex-col gap-2'>
+				<div>
 					<label className='block text-sm font-medium text-gray-700 mb-1'>
 						Tuition Fee <span className='text-red-500'>*</span>
 					</label>
@@ -97,7 +96,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
 						type='number'
 						min='0'
 						step='0.01'
-						className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-700'
+						className='w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-gray-700 bg-white'
 						placeholder='Tuition Fee'
 						value={tuitionFee}
 						onChange={(e) => setTuitionFee(e.target.value)}
