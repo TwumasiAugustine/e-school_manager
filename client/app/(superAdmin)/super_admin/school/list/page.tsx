@@ -25,6 +25,7 @@ const SchoolListPage = () => {
 	const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [refreshing, setRefreshing] = useState<boolean>(false);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
 	const [schoolToDelete, setSchoolToDelete] = useState<number | null>(null);
 	const [currentPage, setCurrentPage] = useState<number>(1);
@@ -139,7 +140,7 @@ const SchoolListPage = () => {
 	};
 
 	const handleRefresh = async () => {
-		setLoading(true);
+		setRefreshing(true);
 		try {
 			const data = await SchoolService.getSchools();
 			setSchools(data);
@@ -149,7 +150,7 @@ const SchoolListPage = () => {
 			console.error('Failed to refresh schools:', error);
 			showToast('Failed to refresh schools.', 'error');
 		} finally {
-			setLoading(false);
+			setRefreshing(false);
 		}
 	};
 
@@ -231,25 +232,35 @@ const SchoolListPage = () => {
 							No schools matching your search criteria.
 						</p>
 					</div>
-				) : viewType === 'list' ? (
-					<SchoolTable
-						schools={currentItems}
-						currentPage={currentPage}
-						itemsPerPage={itemsPerPage}
-						totalSchools={filteredSchools.length}
-						onPageChange={setCurrentPage}
-						onItemsPerPageChange={handleItemsPerPageChange}
-						onView={handleViewSchool}
-						onEdit={handleEditSchool}
-						onDelete={handleDeleteSchool}
-					/>
 				) : (
-					<SchoolGrid
-						schools={currentItems}
-						onView={handleViewSchool}
-						onEdit={handleEditSchool}
-						onDelete={handleDeleteSchool}
-					/>
+					<div className='relative'>
+						{refreshing && (
+							<Loading
+								message='Refreshing schools...'
+								size='medium'
+							/>
+						)}
+						{viewType === 'list' ? (
+							<SchoolTable
+								schools={currentItems}
+								currentPage={currentPage}
+								itemsPerPage={itemsPerPage}
+								totalSchools={filteredSchools.length}
+								onPageChange={setCurrentPage}
+								onItemsPerPageChange={handleItemsPerPageChange}
+								onView={handleViewSchool}
+								onEdit={handleEditSchool}
+								onDelete={handleDeleteSchool}
+							/>
+						) : (
+							<SchoolGrid
+								schools={currentItems}
+								onView={handleViewSchool}
+								onEdit={handleEditSchool}
+								onDelete={handleDeleteSchool}
+							/>
+						)}
+					</div>
 				)}
 
 				{filteredSchools.length > 0 && (
@@ -273,7 +284,7 @@ const SchoolListPage = () => {
 				isOpen={deleteConfirmOpen}
 				title='Delete School'
 				message={(() => {
-					const school = schools.find(s => s.id === schoolToDelete);
+					const school = schools.find((s) => s.id === schoolToDelete);
 					return school
 						? `Are you sure you want to delete ${school.name}? This action cannot be undone.`
 						: 'Are you sure you want to delete this school? This action cannot be undone.';
