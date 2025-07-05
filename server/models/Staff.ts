@@ -42,336 +42,395 @@ interface ILeaveAttachment {
 
 // Interface for Leave Request subdocument
 interface ILeaveRequest extends Types.Subdocument {
-  type: 'annual' | 'sick' | 'maternity' | 'paternity' | 'other';
-  startDate: Date;
-  endDate: Date;
-  reason?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
-  approvedBy?: Types.ObjectId | IUser;
-  approvedAt?: Date;
-  attachments?: ILeaveAttachment[];
+	type: 'annual' | 'sick' | 'maternity' | 'paternity' | 'other';
+	startDate: Date;
+	endDate: Date;
+	reason?: string;
+	status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+	approvedBy?: Types.ObjectId | IUser;
+	approvedAt?: Date;
+	attachments?: ILeaveAttachment[];
+	semester?: Types.ObjectId;
 }
 
 // Interface for Leave History subdocument
 interface ILeaveHistory {
-  type: string;
-  startDate: Date;
-  endDate: Date;
-  days: number;
-  status: string;
+	type: string;
+	startDate: Date;
+	endDate: Date;
+	days: number;
+	status: string;
 }
 
 // Interface for Leave subdocument
 interface ILeave {
-  balance?: ILeaveBalance;
-  requests?: Types.DocumentArray<ILeaveRequest>;
-  history?: ILeaveHistory[];
+	balance?: ILeaveBalance;
+	requests?: Types.DocumentArray<ILeaveRequest>;
+	history?: ILeaveHistory[];
 }
 
 // Interface for Performance Review Period subdocument
 interface IReviewPeriod {
-  startDate: Date;
-  endDate: Date;
+	startDate: Date;
+	endDate: Date;
 }
 
 // Interface for Performance Rating subdocument
 interface IPerformanceRating {
-  category: string;
-  score: number;
-  comments?: string;
+	category: string;
+	score: number;
+	comments?: string;
 }
 
 // Interface for Performance Goal subdocument
 interface IPerformanceGoal {
-  description: string;
-  deadline?: Date;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+	description: string;
+	deadline?: Date;
+	status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
 }
 
 // Interface for Performance Review subdocument
 interface IPerformanceReview extends Types.Subdocument {
-  period: IReviewPeriod;
-  reviewer: Types.ObjectId | IUser;
-  ratings?: IPerformanceRating[];
-  overallRating?: number;
-  strengths?: string[];
-  areasForImprovement?: string[];
-  goals?: IPerformanceGoal[];
-  comments?: string;
-  status: 'draft' | 'submitted' | 'acknowledged';
+	period: IReviewPeriod;
+	reviewer: Types.ObjectId | IUser;
+	ratings?: IPerformanceRating[];
+	overallRating?: number;
+	strengths?: string[];
+	areasForImprovement?: string[];
+	goals?: IPerformanceGoal[];
+	comments?: string;
+	status: 'draft' | 'submitted' | 'acknowledged';
+	semester?: Types.ObjectId;
 }
 
 // Interface for Achievement subdocument
 interface IAchievement extends Types.Subdocument {
-  title: string;
-  description?: string;
-  date: Date;
-  category?: string;
-  recognition?: string;
+	title: string;
+	description?: string;
+	date: Date;
+	category?: string;
+	recognition?: string;
 }
 
 // Interface for Performance subdocument
 interface IPerformance {
-  reviews?: Types.DocumentArray<IPerformanceReview>;
-  achievements?: Types.DocumentArray<IAchievement>;
+	reviews?: Types.DocumentArray<IPerformanceReview>;
+	achievements?: Types.DocumentArray<IAchievement>;
 }
 
 // Interface for Training Certificate subdocument
 interface ITrainingCertificate {
-  filename: string;
-  path: string;
+	filename: string;
+	path: string;
 }
 
 // Interface for Training Feedback subdocument
 interface ITrainingFeedback {
-  rating?: number;
-  comments?: string;
+	rating?: number;
+	comments?: string;
 }
 
 // Interface for Training Record subdocument
 interface ITrainingRecord extends Types.Subdocument {
-  title: string;
-  type: 'internal' | 'external' | 'online' | 'workshop' | 'seminar';
-  provider?: string;
-  startDate?: Date;
-  endDate?: Date;
-  duration?: string;
-  cost?: number;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-  certificate?: ITrainingCertificate;
-  feedback?: ITrainingFeedback;
+	title: string;
+	type: 'internal' | 'external' | 'online' | 'workshop' | 'seminar';
+	provider?: string;
+	startDate?: Date;
+	endDate?: Date;
+	duration?: string;
+	cost?: number;
+	status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+	certificate?: ITrainingCertificate;
+	feedback?: ITrainingFeedback;
+	semester?: Types.ObjectId;
 }
 
 // Interface for Certification subdocument
 interface ICertification extends Types.Subdocument {
-  name: string;
-  issuer: string;
-  issueDate: Date;
-  expiryDate?: Date;
-  certificate?: ITrainingCertificate;
+	name: string;
+	issuer: string;
+	issueDate: Date;
+	expiryDate?: Date;
+	certificate?: ITrainingCertificate;
 }
 
 // Interface for Training subdocument
 interface ITraining {
-  records?: Types.DocumentArray<ITrainingRecord>;
-  certifications?: Types.DocumentArray<ICertification>;
+	records?: Types.DocumentArray<ITrainingRecord>;
+	certifications?: Types.DocumentArray<ICertification>;
 }
 
 // Interface for Staff Document subdocument
 interface IStaffDocument extends Types.Subdocument {
-  type: 'contract' | 'id' | 'certificate' | 'other';
-  title?: string;
-  filename: string;
-  path: string;
-  uploadedAt: Date;
+	type: 'contract' | 'id' | 'certificate' | 'other';
+	title?: string;
+	filename: string;
+	path: string;
+	uploadedAt: Date;
 }
 
 // Interface for Emergency Contact subdocument
 interface IEmergencyContact {
-  name?: string;
-  relationship?: string;
-  phone?: string;
-  address?: string;
+	name?: string;
+	relationship?: string;
+	phone?: string;
+	address?: string;
 }
 
 // Interface for Staff document
 export interface IStaff extends Document {
-  user: Types.ObjectId | IUser;
-  department: 'academic' | 'administrative' | 'support' | 'maintenance' | 'security';
-  position: string;
-  employmentDetails: IEmploymentDetails;
-  leave?: ILeave;
-  performance?: IPerformance;
-  training?: ITraining;
-  documents?: Types.DocumentArray<IStaffDocument>;
-  emergencyContact?: IEmergencyContact;
-  createdAt: Date;
-  updatedAt: Date;
+	user: Types.ObjectId | IUser;
+	department:
+		| 'academic'
+		| 'administrative'
+		| 'support'
+		| 'maintenance'
+		| 'security';
+	position: string;
+	employmentDetails: IEmploymentDetails;
+	leave?: ILeave;
+	performance?: IPerformance;
+	training?: ITraining;
+	documents?: Types.DocumentArray<IStaffDocument>;
+	emergencyContact?: IEmergencyContact;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-const salaryComponentSchema = new Schema<ISalaryComponent>({
-    name: { type: String, required: true },
-    amount: { type: Number, required: true, min: 0 }
-}, { _id: false });
+const salaryComponentSchema = new Schema<ISalaryComponent>(
+	{
+		name: { type: String, required: true },
+		amount: { type: Number, required: true, min: 0 },
+	},
+	{ _id: false },
+);
 
-const salarySchema = new Schema<ISalary>({
-  basic: { type: Number, min: 0 },
-  allowances: [salaryComponentSchema],
-  deductions: [salaryComponentSchema],
-  netSalary: { type: Number, min: 0 } // Consider making this virtual or calculated
-}, { _id: false });
+const salarySchema = new Schema<ISalary>(
+	{
+		basic: { type: Number, min: 0 },
+		allowances: [salaryComponentSchema],
+		deductions: [salaryComponentSchema],
+		netSalary: { type: Number, min: 0 }, // Consider making this virtual or calculated
+	},
+	{ _id: false },
+);
 
-const employmentDetailsSchema = new Schema<IEmploymentDetails>({
-  startDate: {
-    type: Date,
-    required: true
-  },
-  endDate: Date,
-  status: {
-    type: String,
-    enum: ['active', 'on_leave', 'terminated', 'resigned'],
-    default: 'active',
-    required: true
-  },
-  employmentType: {
-    type: String,
-    enum: ['full-time', 'part-time', 'contract', 'temporary'],
-    required: true
-  },
-  salary: salarySchema
-}, { _id: false });
+const employmentDetailsSchema = new Schema<IEmploymentDetails>(
+	{
+		startDate: {
+			type: Date,
+			required: true,
+		},
+		endDate: Date,
+		status: {
+			type: String,
+			enum: ['active', 'on_leave', 'terminated', 'resigned'],
+			default: 'active',
+			required: true,
+		},
+		employmentType: {
+			type: String,
+			enum: ['full-time', 'part-time', 'contract', 'temporary'],
+			required: true,
+		},
+		salary: salarySchema,
+	},
+	{ _id: false },
+);
 
-const leaveBalanceSchema = new Schema<ILeaveBalance>({
-  annual: { type: Number, default: 0, min: 0 },
-  sick: { type: Number, default: 0, min: 0 },
-  maternity: { type: Number, default: 0, min: 0 },
-  paternity: { type: Number, default: 0, min: 0 },
-  other: { type: Number, default: 0, min: 0 }
-}, { _id: false });
+const leaveBalanceSchema = new Schema<ILeaveBalance>(
+	{
+		annual: { type: Number, default: 0, min: 0 },
+		sick: { type: Number, default: 0, min: 0 },
+		maternity: { type: Number, default: 0, min: 0 },
+		paternity: { type: Number, default: 0, min: 0 },
+		other: { type: Number, default: 0, min: 0 },
+	},
+	{ _id: false },
+);
 
-const leaveAttachmentSchema = new Schema<ILeaveAttachment>({
-    filename: { type: String, required: true },
-    path: { type: String, required: true },
-    type: { type: String, required: true }
-}, { _id: false });
+const leaveAttachmentSchema = new Schema<ILeaveAttachment>(
+	{
+		filename: { type: String, required: true },
+		path: { type: String, required: true },
+		type: { type: String, required: true },
+	},
+	{ _id: false },
+);
 
 const leaveRequestSchema = new Schema<ILeaveRequest>({
-  type: {
-    type: String,
-    enum: ['annual', 'sick', 'maternity', 'paternity', 'other'],
-    required: true
-  },
-  startDate: {
-    type: Date,
-    required: true
-  },
-  endDate: {
-    type: Date,
-    required: true
-  },
-  reason: String,
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected', 'cancelled'],
-    default: 'pending'
-  },
-  approvedBy: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  approvedAt: Date,
-  attachments: [leaveAttachmentSchema]
+	type: {
+		type: String,
+		enum: ['annual', 'sick', 'maternity', 'paternity', 'other'],
+		required: true,
+	},
+	startDate: {
+		type: Date,
+		required: true,
+	},
+	endDate: {
+		type: Date,
+		required: true,
+	},
+	reason: String,
+	status: {
+		type: String,
+		enum: ['pending', 'approved', 'rejected', 'cancelled'],
+		default: 'pending',
+	},
+	approvedBy: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+	},
+	approvedAt: Date,
+	attachments: [leaveAttachmentSchema],
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
-const leaveHistorySchema = new Schema<ILeaveHistory>({
-    type: { type: String, required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-    days: { type: Number, required: true, min: 0 },
-    status: { type: String, required: true }
-}, { _id: false });
+const leaveHistorySchema = new Schema<ILeaveHistory>(
+	{
+		type: { type: String, required: true },
+		startDate: { type: Date, required: true },
+		endDate: { type: Date, required: true },
+		days: { type: Number, required: true, min: 0 },
+		status: { type: String, required: true },
+	},
+	{ _id: false },
+);
 
-const leaveSchema = new Schema<ILeave>({
-  balance: leaveBalanceSchema,
-  requests: [leaveRequestSchema],
-  history: [leaveHistorySchema]
-}, { _id: false });
+const leaveSchema = new Schema<ILeave>(
+	{
+		balance: leaveBalanceSchema,
+		requests: [leaveRequestSchema],
+		history: [leaveHistorySchema],
+	},
+	{ _id: false },
+);
 
-const reviewPeriodSchema = new Schema<IReviewPeriod>({
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true }
-}, { _id: false });
+const reviewPeriodSchema = new Schema<IReviewPeriod>(
+	{
+		startDate: { type: Date, required: true },
+		endDate: { type: Date, required: true },
+	},
+	{ _id: false },
+);
 
-const performanceRatingSchema = new Schema<IPerformanceRating>({
-    category: { type: String, required: true },
-    score: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 5
-    },
-    comments: String
-}, { _id: false });
+const performanceRatingSchema = new Schema<IPerformanceRating>(
+	{
+		category: { type: String, required: true },
+		score: {
+			type: Number,
+			required: true,
+			min: 1,
+			max: 5,
+		},
+		comments: String,
+	},
+	{ _id: false },
+);
 
-const performanceGoalSchema = new Schema<IPerformanceGoal>({
-    description: { type: String, required: true },
-    deadline: Date,
-    status: {
-      type: String,
-      enum: ['pending', 'in_progress', 'completed', 'cancelled'],
-      default: 'pending'
-    }
-}, { _id: false });
+const performanceGoalSchema = new Schema<IPerformanceGoal>(
+	{
+		description: { type: String, required: true },
+		deadline: Date,
+		status: {
+			type: String,
+			enum: ['pending', 'in_progress', 'completed', 'cancelled'],
+			default: 'pending',
+		},
+	},
+	{ _id: false },
+);
 
 const performanceReviewSchema = new Schema<IPerformanceReview>({
-  period: { type: reviewPeriodSchema, required: true },
-  reviewer: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  ratings: [performanceRatingSchema],
-  overallRating: {
-    type: Number,
-    min: 1,
-    max: 5
-  },
-  strengths: [String],
-  areasForImprovement: [String],
-  goals: [performanceGoalSchema],
-  comments: String,
-  status: {
-    type: String,
-    enum: ['draft', 'submitted', 'acknowledged'],
-    default: 'draft'
-  }
+	period: { type: reviewPeriodSchema, required: true },
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
+	reviewer: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
+	ratings: [performanceRatingSchema],
+	overallRating: {
+		type: Number,
+		min: 1,
+		max: 5,
+	},
+	strengths: [String],
+	areasForImprovement: [String],
+	goals: [performanceGoalSchema],
+	comments: String,
+	status: {
+		type: String,
+		enum: ['draft', 'submitted', 'acknowledged'],
+		default: 'draft',
+	},
 });
 
 const achievementSchema = new Schema<IAchievement>({
-  title: { type: String, required: true },
-  description: String,
-  date: { type: Date, required: true },
-  category: String,
-  recognition: String
+	title: { type: String, required: true },
+	description: String,
+	date: { type: Date, required: true },
+	category: String,
+	recognition: String,
 });
 
-const performanceSchema = new Schema<IPerformance>({
-  reviews: [performanceReviewSchema],
-  achievements: [achievementSchema]
-}, { _id: false });
+const performanceSchema = new Schema<IPerformance>(
+	{
+		reviews: [performanceReviewSchema],
+		achievements: [achievementSchema],
+	},
+	{ _id: false },
+);
 
-const trainingCertificateSchema = new Schema<ITrainingCertificate>({
-    filename: { type: String, required: true },
-    path: { type: String, required: true }
-}, { _id: false });
+const trainingCertificateSchema = new Schema<ITrainingCertificate>(
+	{
+		filename: { type: String, required: true },
+		path: { type: String, required: true },
+	},
+	{ _id: false },
+);
 
-const trainingFeedbackSchema = new Schema<ITrainingFeedback>({
-    rating: { type: Number, min: 1, max: 5 },
-    comments: String
-}, { _id: false });
+const trainingFeedbackSchema = new Schema<ITrainingFeedback>(
+	{
+		rating: { type: Number, min: 1, max: 5 },
+		comments: String,
+	},
+	{ _id: false },
+);
 
 const trainingRecordSchema = new Schema<ITrainingRecord>({
-  title: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ['internal', 'external', 'online', 'workshop', 'seminar'],
-    required: true
-  },
-  provider: String,
-  startDate: Date,
-  endDate: Date,
-  duration: String,
-  cost: { type: Number, min: 0 },
-  status: {
-    type: String,
-    enum: ['scheduled', 'in_progress', 'completed', 'cancelled'],
-    default: 'scheduled'
-  },
-  certificate: trainingCertificateSchema,
-  feedback: trainingFeedbackSchema
+	title: {
+		type: String,
+		required: true,
+	},
+	type: {
+		type: String,
+		enum: ['internal', 'external', 'online', 'workshop', 'seminar'],
+		required: true,
+	},
+	provider: String,
+	startDate: Date,
+	endDate: Date,
+	duration: String,
+	cost: { type: Number, min: 0 },
+	status: {
+		type: String,
+		enum: ['scheduled', 'in_progress', 'completed', 'cancelled'],
+		default: 'scheduled',
+	},
+	certificate: trainingCertificateSchema,
+	feedback: trainingFeedbackSchema,
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
 const certificationSchema = new Schema<ICertification>({

@@ -5,7 +5,7 @@ interface ModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	title?: string;
-	size?: 'sm' | 'md' | 'lg';
+	size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xl2' | 'xxl2' | 'xxl3' | 'xxl4' | 'xxl5' | 'xxl6';
 	header?: React.ReactNode;
 	footer?: React.ReactNode;
 	children?: React.ReactNode; // body
@@ -15,6 +15,14 @@ const sizeClasses = {
 	sm: 'max-w-sm',
 	md: 'max-w-md',
 	lg: 'max-w-lg',
+	xl: 'max-w-xl',
+	xxl: 'max-w-2xl',
+	xl2: 'max-w-3xl',
+	xxl2: 'max-w-4xl',
+	xxl3: 'max-w-5xl',
+	xxl4: 'max-w-6xl',
+	xxl5: 'max-w-7xl',
+	xxl6: 'max-w-8xl',
 };
 
 const Modal: React.FC<ModalProps> = ({

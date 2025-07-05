@@ -6,7 +6,7 @@ import { Subject } from '@/types/subject';
 
 
 interface CreateSubjectProps {
-	onAdd: (subject: Subject) => void;
+	onAdd: (subject: Omit<Subject, 'id'>) => Promise<void>;
 }
 
 const CreateSubject: React.FC<CreateSubjectProps> = ({ onAdd }) => {

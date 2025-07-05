@@ -1,74 +1,125 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import HeadingWithBadge from '@/components/HeadingWithBadge';
 import { showToast } from '@/components/ToastContainer';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import Loading from '@/components/Loading'
 import CreateSection from './components/CreateSection';
 import ListSections from './components/ListSections';
-
-interface Section {
-	id: number;
-	name: string;
-	trashed?: boolean;
-}
-
-const initialSections: Section[] = [
-	{ id: 1, name: 'C' },
-	{ id: 2, name: 'B' },
-	{ id: 3, name: 'A' },
-];
+import {
+	Section,
+	fetchSectionsAPI,
+	createSectionAPI,
+	updateSectionAPI,
+	deleteSectionAPI,
+} from '@/lib/services/sectionService';
 
 const SectionPage: React.FC = () => {
-	const [sections, setSections] = useState<Section[]>(initialSections);
+	const [sections, setSections] = useState<Section[]>([]);
 	const [search, setSearch] = useState('');
 	const [tab, setTab] = useState<'all' | 'trashed'>('all');
-	const [editingId, setEditingId] = useState<number | null>(null);
+	const [editingId, setEditingId] = useState<string | null>(null);
 	const [editName, setEditName] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(10);
 	const [loading, setLoading] = useState(false);
 	const [view, setView] = useState<'list' | 'grid'>('list');
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const [dialogType, setDialogType] = useState<'delete' | 'restore' | null>(null);
+	const [dialogType, setDialogType] = useState<'delete' | 'restore' | null>(
+		null,
+	);
 	const [dialogSection, setDialogSection] = useState<Section | null>(null);
 
-	const handleAdd = (name: string) => {
-		setSections([{ id: Date.now(), name }, ...sections]);
-		showToast('Section created successfully!', 'success');
+	useEffect(() => {
+		loadSections();
+	}, []);
+
+	const loadSections = async () => {
+		setLoading(true);
+		try {
+			const data = await fetchSectionsAPI();
+			setSections(data);
+		} catch (error) {
+			showToast('Failed to load sections', 'error');
+			console.error('Error loading sections:', error);
+		}
+		setLoading(false);
 	};
-	const handleEdit = (id: number, currentName: string) => {
+
+	const handleAdd = async (name: string) => {
+		setLoading(true);
+		try {
+			const newSection = await createSectionAPI({ name });
+			setSections([newSection, ...sections]);
+			showToast('Section created successfully!', 'success');
+		} catch (error) {
+			showToast('Failed to create section', 'error');
+			console.error('Error creating section:', error);
+		}
+		setLoading(false);
+	};
+	const handleEdit = (id: string, currentName: string) => {
 		setEditingId(id);
 		setEditName(currentName);
 	};
 	const handleEditChange = (name: string) => setEditName(name);
-	const handleEditSubmit = (id: number) => {
-		setSections((prev) => prev.map((s) => (s.id === id ? { ...s, name: editName } : s)));
-		setEditingId(null);
-		setEditName('');
-		showToast('Section updated successfully!', 'success');
+	const handleEditSubmit = async (id: string) => {
+		setLoading(true);
+		try {
+			const updatedSection = await updateSectionAPI({
+				id,
+				name: editName,
+			});
+			setSections((prev) =>
+				prev.map((s) => (s.id === id ? updatedSection : s)),
+			);
+			setEditingId(null);
+			setEditName('');
+			showToast('Section updated successfully!', 'success');
+		} catch (error) {
+			showToast('Failed to update section', 'error');
+			console.error('Error updating section:', error);
+		}
+		setLoading(false);
 	};
-	const requestDelete = (id: number) => {
+	const requestDelete = (id: string) => {
 		const section = sections.find((s) => s.id === id);
 		setDialogSection(section || null);
 		setDialogType('delete');
 		setDialogOpen(true);
 	};
-	const requestRestore = (id: number) => {
+	const requestRestore = (id: string) => {
 		const section = sections.find((s) => s.id === id);
 		setDialogSection(section || null);
 		setDialogType('restore');
 		setDialogOpen(true);
 	};
-	const handleDialogConfirm = () => {
+	const handleDialogConfirm = async () => {
 		if (dialogType === 'delete' && dialogSection) {
-			setSections((prev) => prev.map((s) => (s.id === dialogSection.id ? { ...s, trashed: true } : s)));
-			showToast('Section deleted.', 'info');
+			setLoading(true);
+			try {
+				await deleteSectionAPI(dialogSection.id);
+				setSections((prev) =>
+					prev.map((s) =>
+						s.id === dialogSection.id ? { ...s, trashed: true } : s,
+					),
+				);
+				showToast('Section deleted.', 'info');
+			} catch (error) {
+				showToast('Failed to delete section', 'error');
+				console.error('Error deleting section:', error);
+			}
+			setLoading(false);
 		}
 		if (dialogType === 'restore' && dialogSection) {
-			setSections((prev) => prev.map((s) => (s.id === dialogSection.id ? { ...s, trashed: false } : s)));
+			setSections((prev) =>
+				prev.map((s) =>
+					s.id === dialogSection.id ? { ...s, trashed: false } : s,
+				),
+			);
 			showToast('Section restored.', 'success');
 		}
 		setDialogOpen(false);
@@ -93,13 +144,20 @@ const SectionPage: React.FC = () => {
 	const handleExport = () => {
 		const headers = ['No.', 'Name'];
 		const filteredSections = sections.filter(
-			(s) => (tab === 'all' ? !s.trashed : s.trashed) && (!search || s.name.toLowerCase().includes(search.toLowerCase()))
+			(s) =>
+				(tab === 'all' ? !s.trashed : s.trashed) &&
+				(!search ||
+					s.name.toLowerCase().includes(search.toLowerCase())),
 		);
 		const rows = filteredSections.map((s, idx) => [
 			(idx + 1).toString(),
 			s.name,
 		]);
-		const csvContent = [headers, ...rows].map(r => r.map(field => `"${field.replace(/"/g, '""')}`).join(',')).join('\n');
+		const csvContent = [headers, ...rows]
+			.map((r) =>
+				r.map((field) => `"${field.replace(/"/g, '""')}`).join(','),
+			)
+			.join('\n');
 		const blob = new Blob([csvContent], { type: 'text/csv' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -119,8 +177,16 @@ const SectionPage: React.FC = () => {
 		<div className='min-h-screen bg-gray-50 py-8 px-4 md:px-8'>
 			<ConfirmDialog
 				isOpen={dialogOpen}
-				title={dialogType === 'delete' ? 'Delete Section' : 'Restore Section'}
-				message={dialogType === 'delete' ? `Are you sure you want to delete section "${dialogSection?.name}"?` : `Restore section "${dialogSection?.name}"?`}
+				title={
+					dialogType === 'delete'
+						? 'Delete Section'
+						: 'Restore Section'
+				}
+				message={
+					dialogType === 'delete'
+						? `Are you sure you want to delete section "${dialogSection?.name}"?`
+						: `Restore section "${dialogSection?.name}"?`
+				}
 				confirmText={dialogType === 'delete' ? 'Delete' : 'Restore'}
 				cancelText='Cancel'
 				onConfirm={handleDialogConfirm}
@@ -133,6 +199,14 @@ const SectionPage: React.FC = () => {
 					level='h2'
 					className='mb-6'
 				/>
+				{loading && (
+					<div className='absolute inset-0 z-20 flex items-center justify-center bg-white bg-opacity-80 rounded-lg'>
+						<Loading
+							message='Loading section page...'
+							size='large'
+						/>
+					</div>
+				)}
 				<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
 					<CreateSection onAdd={handleAdd} />
 					<div>

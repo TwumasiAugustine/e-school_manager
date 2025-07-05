@@ -71,7 +71,7 @@ export default function RootLayout({
 						<MobileHeader
 							userName='Admin User'
 							userEmail='admin@eschool.com'
-							userRole='admin'
+							userRole='super_admin'
 							userImage={ImgPlaceholder}
 						/>
 					)}
@@ -85,7 +85,7 @@ export default function RootLayout({
 									setIsCollapsed={setIsSidebarCollapsed}
 									userName='Admin User'
 									userEmail='admin@eschool.com'
-									userRole='admin'
+									userRole='super_admin'
 									userImage={ImgPlaceholder}
 								/>
 							</aside>

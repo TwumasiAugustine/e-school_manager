@@ -1,4 +1,3 @@
-'use client';
 import React, { useState, useEffect } from 'react';
 import type { Class, Teacher } from '@/types/class';
 import MultiSelect from '@/components/MultiSelect';
@@ -22,21 +21,19 @@ const ClassForm: React.FC<ClassFormProps> = ({
 	// Removed unused teacherId state
 	const [tuitionFee, setTuitionFee] = useState('');
 	const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
-
 	useEffect(() => {
 		if (classObj) {
 			setName(classObj.name || '');
-			// setTeacherId(classObj.teacherId || ''); // Removed unused teacherId state
 			setTuitionFee(classObj.tuitionFee?.toString() || '');
-			setSelectedTeachers(classObj.teacherId ? [classObj.teacherId] : []);
+			setSelectedTeachers(
+				classObj.classTeacher ? [classObj.classTeacher] : [],
+			);
 		} else {
 			handleReset();
 		}
 	}, [classObj]);
-
 	const handleReset = () => {
 		setName('');
-		// setTeacherId(''); // Removed unused teacherId state
 		setTuitionFee('');
 		setSelectedTeachers([]);
 	};
@@ -46,10 +43,20 @@ const ClassForm: React.FC<ClassFormProps> = ({
 		if (!name.trim() || selectedTeachers.length === 0 || !tuitionFee)
 			return;
 		onSubmit({
-			id: classObj?.id || Date.now(),
+			id: classObj?.id || `cls-${Date.now()}`,
 			name: name.trim(),
-			teacherId: selectedTeachers[0],
+			classTeacher: selectedTeachers[0],
 			tuitionFee: parseFloat(tuitionFee),
+			grade: '10', // Default or from form
+			section: 'A', // Default or from form
+			academicYear: '2024-2025', // Default or from form
+			branch: 'main', // Default or from form
+			students: [],
+			capacity: 30, // Default or from form
+			currentStrength: 0,
+			status: 'active' as const,
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
 		});
 		if (mode === 'create') handleReset();
 	};

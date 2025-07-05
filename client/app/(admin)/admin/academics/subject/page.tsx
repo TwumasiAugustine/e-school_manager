@@ -1,47 +1,69 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HeadingWithBadge from '@/components/HeadingWithBadge';
 import CreateSubject from './components/CreateSubject';
 import ListSubjects from './components/ListSubjects';
 import { Subject } from '@/types/subject';
 import { showToast } from '@/components/ToastContainer';
 import ConfirmDialog from '@/components/ConfirmDialog';
-
-const initialSubjects: Subject[] = [
-	{
-		id: 1,
-		name: 'Strategic Management',
-		code: 'SM',
-		type: 'Theory',
-		bgColor: '#bcd6ac',
-		image: '/subject1.png',
-	},
-	{
-		id: 2,
-		name: 'Social Welfare Administration',
-		code: 'SWA',
-		type: 'Theory',
-		bgColor: '#ebab94',
-		image: '/subject2.png',
-	},
-];
+import Loading from '@/components/Loading';
+import {
+	fetchSubjectsAPI,
+	createSubjectAPI,
+	deleteSubjectAPI,
+} from '@/lib/services/subjectService';
 
 const SubjectPage = () => {
-	const [subjects, setSubjects] = useState<Subject[]>(initialSubjects);
+	const [subjects, setSubjects] = useState<Subject[]>([]);
 	const [confirmOpen, setConfirmOpen] = useState(false);
-	const [subjectToDelete, setSubjectToDelete] = useState<Subject | null>(null);
+	const [subjectToDelete, setSubjectToDelete] = useState<Subject | null>(
+		null,
+	);
+	const [isLoading, setIsLoading] = useState(false);
 
-	const handleAdd = (subject: Subject) => {
-		setSubjects([subject, ...subjects]);
-		showToast('Subject created successfully!', 'success');
+	useEffect(() => {
+		loadSubjects();
+	}, []);
+
+	const loadSubjects = async () => {
+		setIsLoading(true);
+		try {
+			const data = await fetchSubjectsAPI();
+			setSubjects(data);
+		} catch (error) {
+			showToast('Failed to load subjects', 'error');
+			console.error('Error loading subjects:', error);
+		}
+		setIsLoading(false);
 	};
 
-	const handleDelete = (id: number) => {
-		setSubjects((prev) =>
-			prev.map((s) => (s.id === id ? { ...s, trashed: true } : s)),
-		);
-		showToast('Subject deleted.', 'success');
+	const handleAdd = async (subject: Omit<Subject, 'id'>) => {
+		setIsLoading(true);
+		try {
+			const newSubject = await createSubjectAPI(subject);
+			setSubjects([newSubject, ...subjects]);
+			showToast('Subject created successfully!', 'success');
+		} catch (error) {
+			showToast('Failed to create subject', 'error');
+			console.error('Error creating subject:', error);
+		}
+		setIsLoading(false);
+	};
+
+	const handleDelete = async (id: number) => {
+		setIsLoading(true);
+		try {
+			await deleteSubjectAPI(id);
+			setSubjects((prev) =>
+				prev.map((s) => (s.id === id ? { ...s, trashed: true } : s)),
+			);
+			showToast('Subject deleted.', 'success');
+		} catch (error) {
+			showToast('Failed to delete subject', 'error');
+			console.error('Error deleting subject:', error);
+		}
+		setIsLoading(false);
 	};
 
 	const handleRequestDelete = (subject: Subject) => {
@@ -70,6 +92,14 @@ const SubjectPage = () => {
 					level='h2'
 					className='mb-6'
 				/>
+				{isLoading && (
+					<div className='absolute inset-0 z-20 flex items-center justify-center bg-white bg-opacity-80 rounded-lg'>
+						<Loading
+							message='Loading subject page...'
+							size='large'
+						/>
+					</div>
+				)}
 				<div className='grid grid-cols-1  gap-6'>
 					<CreateSubject onAdd={handleAdd} />
 					<ListSubjects

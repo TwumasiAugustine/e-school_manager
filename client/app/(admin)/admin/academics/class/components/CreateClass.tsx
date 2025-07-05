@@ -6,7 +6,9 @@ import ClassForm from './ClassForm';
 
 interface CreateClassProps {
 	teachers: Teacher[];
-	onAdd: (newClass: Class) => void;
+	onAdd: (
+		newClass: Omit<Class, 'id' | 'createdAt' | 'updatedAt'>,
+	) => Promise<void>;
 }
 
 const CreateClass: React.FC<CreateClassProps> = ({ teachers, onAdd }) => {

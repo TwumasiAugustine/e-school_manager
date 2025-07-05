@@ -72,6 +72,7 @@ export interface IClass extends Document {
   branch: Types.ObjectId | IBranch;
   classTeacher: Types.ObjectId | ITeacher;
   students: (Types.ObjectId | IStudent)[];
+  semester?: Types.ObjectId; 
   subjects?: Types.DocumentArray<ISubject>;
   capacity: number;
   currentStrength: number;
@@ -167,63 +168,73 @@ const classAnnouncementSchema = new Schema<IClassAnnouncement>({
 });
 
 
-const classSchema = new Schema<IClass>({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  grade: {
-    type: String,
-    required: true
-  },
-  section: {
-    type: String,
-    required: true
-  },
-  academicYear: {
-    type: String,
-    required: true
-  },
-  branch: {
-    type: Schema.Types.ObjectId,
-    ref: 'Branch',
-    required: true
-  },
-  classTeacher: {
-    type: Schema.Types.ObjectId,
-    ref: 'Teacher',
-    required: true
-  },
-  students: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Student'
-  }],
-  subjects: [subjectSchema],
-  capacity: {
-    type: Number,
-    required: true
-  },
-  currentStrength: {
-    type: Number,
-    default: 0
-  },
-  room: roomSchema,
-  facilities: [classFacilitySchema],
-  events: [classEventSchema],
-  attendance: [classAttendanceSchema],
-  announcements: [classAnnouncementSchema],
-  status: {
-    type: String,
-    enum: ['active', 'completed', 'cancelled'],
-    default: 'active',
-    required: true
-  }
-}, {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
-});
+const classSchema = new Schema<IClass>(
+	{
+		name: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		grade: {
+			type: String,
+			required: true,
+		},
+		section: {
+			type: String,
+			required: true,
+		},
+		academicYear: {
+			type: String,
+			required: true,
+		},
+		semester: {
+			type: Schema.Types.ObjectId,
+			ref: 'Semester',
+			required: false, // Optional, but can be set to true if every class must have a semester
+		},
+		branch: {
+			type: Schema.Types.ObjectId,
+			ref: 'Branch',
+			required: true,
+		},
+		classTeacher: {
+			type: Schema.Types.ObjectId,
+			ref: 'Teacher',
+			required: true,
+		},
+		students: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'Student',
+			},
+		],
+		subjects: [subjectSchema],
+		capacity: {
+			type: Number,
+			required: true,
+		},
+		currentStrength: {
+			type: Number,
+			default: 0,
+		},
+		room: roomSchema,
+		facilities: [classFacilitySchema],
+		events: [classEventSchema],
+		attendance: [classAttendanceSchema],
+		announcements: [classAnnouncementSchema],
+		status: {
+			type: String,
+			enum: ['active', 'completed', 'cancelled'],
+			default: 'active',
+			required: true,
+		},
+	},
+	{
+		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
+	},
+);
 
 // Virtual for attendance percentage
 classSchema.virtual('attendancePercentage').get(function(this: IClass) {

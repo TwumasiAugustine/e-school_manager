@@ -43,189 +43,240 @@ interface IPosition {
 
 // Interface for Grade document
 export interface IGrade extends Document {
-  student: Types.ObjectId | IStudent;
-  class: Types.ObjectId | IClass;
-  subject: string;
-  term: 'first' | 'second' | 'third';
-  academicYear: string;
-  weights: IWeights;
-  scores: IScores;
-  totalScore: number;
-  maxTotalScore: number;
-  percentage: number;
-  grade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'F';
-  gradePoint: number;
-  status: 'pass' | 'fail' | 'incomplete';
-  position: IPosition;
-  teacher: Types.ObjectId | ITeacher;
-  lastUpdated: Date;
-  createdAt: Date;
-  updatedAt: Date;
+	student: Types.ObjectId | IStudent;
+	class: Types.ObjectId | IClass;
+	subject: string;
+	term: 'first' | 'second' | 'third';
+	semester?: Types.ObjectId; // New field for semester reference
+	academicYear: string;
+	weights: IWeights;
+	scores: IScores;
+	totalScore: number;
+	maxTotalScore: number;
+	percentage: number;
+	grade:
+		| 'A+'
+		| 'A'
+		| 'A-'
+		| 'B+'
+		| 'B'
+		| 'B-'
+		| 'C+'
+		| 'C'
+		| 'C-'
+		| 'D+'
+		| 'D'
+		| 'D-'
+		| 'F';
+	gradePoint: number;
+	status: 'pass' | 'fail' | 'incomplete';
+	position: IPosition;
+	teacher: Types.ObjectId | ITeacher;
+	lastUpdated: Date;
+	createdAt: Date;
+	updatedAt: Date;
 
-  // Methods
-  calculateGrade(): void;
-  calculatePosition(): Promise<void>;
+	// Methods
+	calculateGrade(): void;
+	calculatePosition(): Promise<void>;
 }
 
-const weightsSchema = new Schema<IWeights>({
-  classScore: {
-    type: Number,
-    default: 50,
-    min: 0,
-    max: 100
-  },
-  examScore: {
-    type: Number,
-    default: 50,
-    min: 0,
-    max: 100
-  }
-}, { _id: false });
+const weightsSchema = new Schema<IWeights>(
+	{
+		classScore: {
+			type: Number,
+			default: 50,
+			min: 0,
+			max: 100,
+		},
+		examScore: {
+			type: Number,
+			default: 50,
+			min: 0,
+			max: 100,
+		},
+	},
+	{ _id: false },
+);
 
 const classScoreSchema = new Schema<IClassScore>({
-  type: {
-    type: String,
-    enum: ['quiz', 'assignment', 'project', 'participation'],
-    required: true
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  score: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  maxScore: {
-    type: Number,
-    required: true,
-    min: 1 // Max score should be at least 1
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  comments: String
+	type: {
+		type: String,
+		enum: ['quiz', 'assignment', 'project', 'participation'],
+		required: true,
+	},
+	title: {
+		type: String,
+		required: true,
+	},
+	score: {
+		type: Number,
+		required: true,
+		min: 0,
+	},
+	maxScore: {
+		type: Number,
+		required: true,
+		min: 1, // Max score should be at least 1
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+	comments: String,
 });
 
 const examScoreSchema = new Schema<IExamScore>({
-  type: {
-    type: String,
-    enum: ['midterm', 'final'],
-    required: true
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  score: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  maxScore: {
-    type: Number,
-    required: true,
-    min: 1
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
-  comments: String
+	type: {
+		type: String,
+		enum: ['midterm', 'final'],
+		required: true,
+	},
+	title: {
+		type: String,
+		required: true,
+	},
+	score: {
+		type: Number,
+		required: true,
+		min: 0,
+	},
+	maxScore: {
+		type: Number,
+		required: true,
+		min: 1,
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+	comments: String,
 });
 
-const scoresSchema = new Schema<IScores>({
-  classScore: [classScoreSchema],
-  examScore: [examScoreSchema]
-}, { _id: false });
+const scoresSchema = new Schema<IScores>(
+	{
+		classScore: [classScoreSchema],
+		examScore: [examScoreSchema],
+	},
+	{ _id: false },
+);
 
-const positionSchema = new Schema<IPosition>({
-  class: {
-    type: Number,
-    default: 0
-  },
-  totalStudents: {
-    type: Number,
-    default: 0
-  }
-}, { _id: false });
+const positionSchema = new Schema<IPosition>(
+	{
+		class: {
+			type: Number,
+			default: 0,
+		},
+		totalStudents: {
+			type: Number,
+			default: 0,
+		},
+	},
+	{ _id: false },
+);
 
-const gradeSchema = new Schema<IGrade>({
-  student: {
-    type: Schema.Types.ObjectId,
-    ref: 'Student',
-    required: true,
-    index: true
-  },
-  class: {
-    type: Schema.Types.ObjectId,
-    ref: 'Class',
-    required: true,
-    index: true
-  },
-  subject: {
-    type: String,
-    required: true,
-    index: true
-  },
-  term: {
-    type: String,
-    enum: ['first', 'second', 'third'],
-    required: true,
-    index: true
-  },
-  academicYear: {
-    type: String,
-    required: true,
-    index: true
-  },
-  weights: { type: weightsSchema, default: () => ({ classScore: 50, examScore: 50 }) },
-  scores: scoresSchema,
-  totalScore: {
-    type: Number,
-    default: 0
-  },
-  maxTotalScore: {
-    type: Number,
-    default: 0
-  },
-  percentage: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 100
-  },
-  grade: {
-    type: String,
-    enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'],
-    default: 'F'
-  },
-  gradePoint: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 4.0
-  },
-  status: {
-    type: String,
-    enum: ['pass', 'fail', 'incomplete'],
-    default: 'incomplete'
-  },
-  position: { type: positionSchema, default: () => ({ class: 0, totalStudents: 0 }) },
-  teacher: {
-    type: Schema.Types.ObjectId,
-    ref: 'Teacher',
-    required: true
-  },
-  lastUpdated: {
-    type: Date,
-    default: Date.now
-  }
-}, {
-  timestamps: true
-});
+const gradeSchema = new Schema<IGrade>(
+	{
+		student: {
+			type: Schema.Types.ObjectId,
+			ref: 'Student',
+			required: true,
+			index: true,
+		},
+		class: {
+			type: Schema.Types.ObjectId,
+			ref: 'Class',
+			required: true,
+			index: true,
+		},
+		subject: {
+			type: String,
+			required: true,
+			index: true,
+		},
+		term: {
+			type: String,
+			enum: ['first', 'second', 'third'],
+			required: true,
+			index: true,
+		},
+		semester: {
+			type: Schema.Types.ObjectId,
+			ref: 'Semester',
+			required: false,
+		},
+		academicYear: {
+			type: String,
+			required: true,
+			index: true,
+		},
+		weights: {
+			type: weightsSchema,
+			default: () => ({ classScore: 50, examScore: 50 }),
+		},
+		scores: scoresSchema,
+		totalScore: {
+			type: Number,
+			default: 0,
+		},
+		maxTotalScore: {
+			type: Number,
+			default: 0,
+		},
+		percentage: {
+			type: Number,
+			default: 0,
+			min: 0,
+			max: 100,
+		},
+		grade: {
+			type: String,
+			enum: [
+				'A+',
+				'A',
+				'A-',
+				'B+',
+				'B',
+				'B-',
+				'C+',
+				'C',
+				'C-',
+				'D+',
+				'D',
+				'D-',
+				'F',
+			],
+			default: 'F',
+		},
+		gradePoint: {
+			type: Number,
+			default: 0,
+			min: 0,
+			max: 4.0,
+		},
+		status: {
+			type: String,
+			enum: ['pass', 'fail', 'incomplete'],
+			default: 'incomplete',
+		},
+		position: {
+			type: positionSchema,
+			default: () => ({ class: 0, totalStudents: 0 }),
+		},
+		teacher: {
+			type: Schema.Types.ObjectId,
+			ref: 'Teacher',
+			required: true,
+		},
+		lastUpdated: {
+			type: Date,
+			default: Date.now,
+		},
+	},
+	{
+		timestamps: true,
+	},
+);
 
 // Calculate grade statistics
 gradeSchema.methods.calculateGrade = function(this: IGrade): void {

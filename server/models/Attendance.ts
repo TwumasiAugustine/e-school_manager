@@ -12,62 +12,81 @@ interface IAttendanceRecord extends Types.Subdocument {
 
 // Interface for the main Attendance document (representing a class's attendance for a specific day)
 export interface IAttendance extends Document {
-  class: Types.ObjectId | IClass;
-  date: Date;
-  records: Types.DocumentArray<IAttendanceRecord>;
-  recordedBy: Types.ObjectId | IUser; // User (teacher/admin) who recorded the attendance
-  createdAt: Date;
-  updatedAt: Date;
+	class: Types.ObjectId | IClass;
+	semester?: Types.ObjectId; // Reference to Semester
+	date: Date;
+	records: Types.DocumentArray<IAttendanceRecord>;
+	recordedBy: Types.ObjectId | IUser; // User (teacher/admin) who recorded the attendance
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 // Schema for the Attendance Record subdocument
-const attendanceRecordSchema = new Schema<IAttendanceRecord>({
-  student: {
-    type: Schema.Types.ObjectId,
-    ref: 'Student',
-    required: [true, 'Student ID is required for each attendance record.']
-  },
-  status: {
-    type: String,
-    enum: {
-        values: ['present', 'absent', 'late', 'excused'],
-        message: 'Attendance status must be one of: present, absent, late, excused.'
-    },
-    required: [true, 'Attendance status is required for each student.']
-  },
-  notes: {
-      type: String,
-      trim: true
-  }
-}, { _id: false }); // No separate _id for subdocuments
+const attendanceRecordSchema = new Schema<IAttendanceRecord>(
+	{
+		student: {
+			type: Schema.Types.ObjectId,
+			ref: 'Student',
+			required: [
+				true,
+				'Student ID is required for each attendance record.',
+			],
+		},
+		status: {
+			type: String,
+			enum: {
+				values: ['present', 'absent', 'late', 'excused'],
+				message:
+					'Attendance status must be one of: present, absent, late, excused.',
+			},
+			required: [true, 'Attendance status is required for each student.'],
+		},
+		notes: {
+			type: String,
+			trim: true,
+		},
+	},
+	{ _id: false },
+); // No separate _id for subdocuments
 
 // Schema for the main Attendance document
-const attendanceSchema = new Schema<IAttendance>({
-  class: {
-    type: Schema.Types.ObjectId,
-    ref: 'Class',
-    required: [true, 'Class ID is required to record attendance.'],
-    index: true // Index for faster querying by class
-  },
-  date: {
-    type: Date,
-    required: [true, 'Date is required for the attendance record.'],
-    index: true // Index for faster querying by date
-  },
-  records: {
-      type: [attendanceRecordSchema],
-      required: true,
-      // Ensure there's at least one record if the array exists
-      validate: [ (v: IAttendanceRecord[]) => Array.isArray(v) && v.length > 0, 'At least one student attendance record is required.']
-  },
-  recordedBy: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: [true, 'User ID of the recorder is required.']
-  }
-}, {
-  timestamps: true // Adds createdAt and updatedAt timestamps
-});
+const attendanceSchema = new Schema<IAttendance>(
+	{
+		class: {
+			type: Schema.Types.ObjectId,
+			ref: 'Class',
+			required: [true, 'Class ID is required to record attendance.'],
+			index: true, // Index for faster querying by class
+		},
+		semester: {
+			type: Schema.Types.ObjectId,
+			ref: 'Semester',
+			required: false,
+		},
+		date: {
+			type: Date,
+			required: [true, 'Date is required for the attendance record.'],
+			index: true, // Index for faster querying by date
+		},
+		records: {
+			type: [attendanceRecordSchema],
+			required: true,
+			// Ensure there's at least one record if the array exists
+			validate: [
+				(v: IAttendanceRecord[]) => Array.isArray(v) && v.length > 0,
+				'At least one student attendance record is required.',
+			],
+		},
+		recordedBy: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: [true, 'User ID of the recorder is required.'],
+		},
+	},
+	{
+		timestamps: true, // Adds createdAt and updatedAt timestamps
+	},
+);
 
 // Compound index to ensure only one attendance record per class per day
 // Use $gte and $lt in queries on 'date' to match the specific day

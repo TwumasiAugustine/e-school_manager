@@ -87,6 +87,17 @@ const ListStudents: React.FC = () => {
     setEditModalOpen(true);
   };
   const handleEditSubmit = (data: AdmissionFormData) => {
+    if (!editingStudent) return;
+    const merged = { ...editingStudent, ...data };
+    StudentService.updateStudent(editingStudent.grNumber, merged).then((updatedStudent) => {
+      if (updatedStudent) {
+        setStudents((prev) =>
+          prev.map((s) => (s.grNumber === updatedStudent.grNumber ? updatedStudent : s))
+        );
+      } else {
+        showToast('Failed to update student.', 'error');
+      }
+    });
     showToast('Student updated successfully!', 'success');
     setEditModalOpen(false);
     setEditingStudent(null);
@@ -191,199 +202,243 @@ const ListStudents: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <HeadingWithBadge title="List Students" level="h3" className="mb-4" />
-      {/* Status Tabs */}
-      <div className="flex items-center gap-2 mb-6">
-        <div className="inline-flex rounded-lg bg-gray-100 p-1 shadow-sm">
-          <button
-            className={`px-5 py-2 rounded-md font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${tab === 'active' ? 'bg-emerald-600 text-white shadow' : 'text-gray-700 hover:bg-gray-200'}`}
-            onClick={() => setTab('active')}
-            aria-pressed={tab === 'active'}
-          >
-            Active
-          </button>
-          <button
-            className={`px-5 py-2 rounded-md font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${tab === 'inactive' ? 'bg-gray-300 text-gray-700 shadow' : 'text-gray-700 hover:bg-gray-200'}`}
-            onClick={() => setTab('inactive')}
-            aria-pressed={tab === 'inactive'}
-          >
-            Inactive
-          </button>
-        </div>
-        {tab === 'active' && (
-          <button
-            className="ml-4 px-4 py-2 rounded-md bg-gray-300 text-gray-700 font-semibold shadow hover:bg-gray-400 transition-colors disabled:opacity-50"
-            onClick={handleSetInactive}
-            disabled={selectedStudents.size === 0}
-          >
-            Set Inactive
-          </button>
-        )}
-        {tab === 'inactive' && (
-          <button
-            className="ml-4 px-4 py-2 rounded-md bg-emerald-600 text-white font-semibold shadow hover:bg-emerald-700 transition-colors disabled:opacity-50"
-            onClick={handleSetActive}
-            disabled={selectedStudents.size === 0}
-          >
-            Set Active
-          </button>
-        )}
-      </div>
-      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MultiSelect
-            label="Class Section"
-            options={classSections}
-            placeholder="Class Section"
-            onChange={setSelectedSection}
-            maxSelected={classSections.length}
-            required
-          />
-          <MultiSelect
-            label="Session Year"
-            options={sessionYears}
-            placeholder="Session Year"
-            onChange={setSelectedSession}
-            maxSelected={sessionYears.length}
-            required
-          />
-        </div>
-        <div className="flex items-center gap-4">
-          <ActionsBar
-            onRefresh={handleRefresh}
-            onExport={handleExport}
-            onViewChange={setView}
-            view={view}
-          />
-        </div>
-      </div>
-      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
-        <div className="flex-1 max-w-full md:max-w-[300px] w-full relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <FiSearch />
-          </span>
-          <input
-            type="text"
-            placeholder="Search by name, GR number, or guardian email..."
-            className="w-full pl-10 pr-10 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 transition-all shadow-sm placeholder-gray-400"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search students"
-          />
-        </div>
-      </div>
-      <div className="relative">
-        {loading && <Loading message="Refreshing students..." size="medium" />}
-        {(isSmallScreen || view === 'grid') ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {paginatedStudents.length === 0 ? (
-              <div className="flex items-center justify-center min-h-[300px] w-full col-span-full">
-                <EmptyState title="No students found" message="There are no students to display. Add a new student to get started." buttonText="Add Student" buttonAction={() => router.push('/admin/student/add')} />
-              </div>
-            ) : (
-              paginatedStudents.map((student, idx) => (
-                <StudentCard
-                  key={student.grNumber}
-                  student={student}
-                  onEdit={handleEdit}
-                  onView={handleView}
-                  onDelete={handleDelete}
-                  index={indexOfFirstItem + idx}
-                  selected={selectedStudents.has(student.grNumber)}
-                  onSelect={checked => handleSelectOne(student.grNumber, checked)}
-                />
-              ))
-            )}
-          </div>
-        ) : (
-          <StudentTable
-            students={paginatedStudents}
-            onEdit={handleEdit}
-            onView={handleView}
-            onDelete={handleDelete}
-            indexOfFirstItem={indexOfFirstItem}
-            selected={selectedStudents}
-            onSelectAll={handleSelectAll}
-            onSelectOne={handleSelectOne}
-          />
-        )}
-        {/* Pagination Controls */}
-        <div className="mt-4 flex flex-col md:flex-row justify-between items-center gap-2">
-          <div className="flex items-center mb-2 md:mb-0">
-            <span className="text-sm text-gray-700 mr-2">Rows per page:</span>
-            <select
-              className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              title="Select rows per page">
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-            <span className="ml-4 text-sm text-gray-700">
-              Showing {filtered.length > 0 ? indexOfFirstItem + 1 : 0}-
-              {Math.min(indexOfLastItem, filtered.length)} of {filtered.length}
-            </span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <button
-              className="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}>
-              Previous
-            </button>
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-              return (
-                <button
-                  key={i}
-                  className={`px-3 py-1 rounded-md ${pageNum === currentPage ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  onClick={() => setCurrentPage(pageNum)}>
-                  {pageNum}
-                </button>
-              );
-            })}
-            <button
-              className="px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage(currentPage + 1)}>
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
-      <Modal isOpen={editModalOpen} onClose={handleEditCancel} title="Edit Student" size="lg">
-        <AdmissionForm
-          onSubmit={handleEditSubmit}
-          onCancel={handleEditCancel}
-          title="Edit Student"
-        />
-      </Modal>
-      <ConfirmDialog
-        isOpen={confirmDialogOpen}
-        title="Delete Student"
-        message={`Are you sure you want to delete ${studentToDelete?.firstName} ${studentToDelete?.lastName}?`}
-        confirmText="Delete"
-        onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-        type="danger"
-      />
-      <ToastContainer />
-    </div>
+		<div className='bg-white rounded-lg shadow p-6'>
+			<HeadingWithBadge
+				title='List Students'
+				level='h3'
+				className='mb-4'
+			/>
+			{/* Status Tabs */}
+			<div className='flex items-center justify-between gap-2 mb-6'>
+				<div className='inline-flex rounded-lg bg-gray-100 p-1 shadow-sm'>
+					<button
+						className={`px-5 py-2 rounded-md font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+							tab === 'active'
+								? 'bg-emerald-600 text-white shadow'
+								: 'text-gray-700 hover:bg-gray-200'
+						}`}
+						onClick={() => setTab('active')}
+						aria-pressed={tab === 'active'}>
+						Active
+					</button>
+					<button
+						className={`px-5 py-2 rounded-md font-semibold transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+							tab === 'inactive'
+								? 'bg-gray-300 text-gray-700 shadow'
+								: 'text-gray-700 hover:bg-gray-200'
+						}`}
+						onClick={() => setTab('inactive')}
+						aria-pressed={tab === 'inactive'}>
+						Inactive
+					</button>
+				</div>
+				{tab === 'active' && (
+					<button
+						className='ml-4 px-4 py-2 rounded-md bg-gray-300 text-gray-700 font-semibold shadow hover:bg-gray-400 transition-colors disabled:opacity-50'
+						onClick={handleSetInactive}
+						disabled={selectedStudents.size === 0}>
+						Set Inactive
+					</button>
+				)}
+				{tab === 'inactive' && (
+					<button
+						className='ml-4 px-4 py-2 rounded-md bg-emerald-600 text-white font-semibold shadow hover:bg-emerald-700 transition-colors disabled:opacity-50'
+						onClick={handleSetActive}
+						disabled={selectedStudents.size === 0}>
+						Set Active
+					</button>
+				)}
+				<div className='flex items-center gap-4'>
+					<ActionsBar
+						onRefresh={handleRefresh}
+						onExport={handleExport}
+						onViewChange={setView}
+						view={view}
+					/>
+				</div>
+			</div>
+			<div className='flex flex-col md:flex-row md:items-center gap-4 mb-4'>
+				<div className='flex-1 grid grid-cols-1 md:grid-cols-2 gap-4'>
+					<MultiSelect
+						label='Class Section'
+						options={classSections}
+						placeholder='Class Section'
+						onChange={setSelectedSection}
+						maxSelected={classSections.length}
+						required
+					/>
+					<MultiSelect
+						label='Session Year'
+						options={sessionYears}
+						placeholder='Session Year'
+						onChange={setSelectedSession}
+						maxSelected={sessionYears.length}
+						required
+					/>
+				</div>
+			</div>
+			<div className='flex flex-col md:flex-row md:items-center gap-4 mb-4'>
+				<div className='flex-1 max-w-full md:max-w-[300px] w-full relative'>
+					<span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+						<FiSearch />
+					</span>
+					<input
+						type='text'
+						placeholder='Search by name, GR number, or guardian email...'
+						className='w-full pl-10 pr-10 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 transition-all shadow-sm placeholder-gray-400'
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						aria-label='Search students'
+					/>
+				</div>
+			</div>
+			<div className='relative'>
+				{loading && (
+					<Loading
+						message='Refreshing students...'
+						size='medium'
+					/>
+				)}
+				{isSmallScreen || view === 'grid' ? (
+					<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
+						{paginatedStudents.length === 0 ? (
+							<div className='flex items-center justify-center min-h-[300px] w-full col-span-full'>
+								<EmptyState
+									title='No students found'
+									message='There are no students to display. Add a new student to get started.'
+									buttonText='Add Student'
+									buttonAction={() =>
+										router.push('/admin/student/add')
+									}
+								/>
+							</div>
+						) : (
+							paginatedStudents.map((student, idx) => (
+								<StudentCard
+									key={student.grNumber}
+									student={student}
+									onEdit={handleEdit}
+									onView={handleView}
+									onDelete={handleDelete}
+									index={indexOfFirstItem + idx}
+									selected={selectedStudents.has(
+										student.grNumber,
+									)}
+									onSelect={(checked) =>
+										handleSelectOne(
+											student.grNumber,
+											checked,
+										)
+									}
+								/>
+							))
+						)}
+					</div>
+				) : (
+					<StudentTable
+						students={paginatedStudents}
+						onEdit={handleEdit}
+						onView={handleView}
+						onDelete={handleDelete}
+						indexOfFirstItem={indexOfFirstItem}
+						selected={selectedStudents}
+						onSelectAll={handleSelectAll}
+						onSelectOne={handleSelectOne}
+					/>
+				)}
+				{/* Pagination Controls */}
+				<div className='mt-4 flex flex-col md:flex-row justify-between items-center gap-2'>
+					<div className='flex items-center mb-2 md:mb-0'>
+						<span className='text-sm text-gray-700 mr-2'>
+							Rows per page:
+						</span>
+						<select
+							className='border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500'
+							value={itemsPerPage}
+							onChange={(e) => {
+								setItemsPerPage(Number(e.target.value));
+								setCurrentPage(1);
+							}}
+							title='Select rows per page'>
+							<option value={5}>5</option>
+							<option value={10}>10</option>
+							<option value={25}>25</option>
+							<option value={50}>50</option>
+						</select>
+						<span className='ml-4 text-sm text-gray-700'>
+							Showing{' '}
+							{filtered.length > 0 ? indexOfFirstItem + 1 : 0}-
+							{Math.min(indexOfLastItem, filtered.length)} of{' '}
+							{filtered.length}
+						</span>
+					</div>
+					<div className='flex items-center space-x-1'>
+						<button
+							className='px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50'
+							disabled={currentPage === 1}
+							onClick={() => setCurrentPage(currentPage - 1)}>
+							Previous
+						</button>
+						{Array.from(
+							{ length: Math.min(5, totalPages) },
+							(_, i) => {
+								let pageNum;
+								if (totalPages <= 5) {
+									pageNum = i + 1;
+								} else if (currentPage <= 3) {
+									pageNum = i + 1;
+								} else if (currentPage >= totalPages - 2) {
+									pageNum = totalPages - 4 + i;
+								} else {
+									pageNum = currentPage - 2 + i;
+								}
+								return (
+									<button
+										key={i}
+										className={`px-3 py-1 rounded-md ${
+											pageNum === currentPage
+												? 'bg-emerald-600 text-white'
+												: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+										}`}
+										onClick={() => setCurrentPage(pageNum)}>
+										{pageNum}
+									</button>
+								);
+							},
+						)}
+						<button
+							className='px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50'
+							disabled={
+								currentPage === totalPages || totalPages === 0
+							}
+							onClick={() => setCurrentPage(currentPage + 1)}>
+							Next
+						</button>
+					</div>
+				</div>
+			</div>
+			<Modal
+				isOpen={editModalOpen}
+				onClose={handleEditCancel}
+				title='Edit Student'
+				size='xxl5'>
+				<AdmissionForm
+					onSubmit={handleEditSubmit}
+					onCancel={handleEditCancel}
+					title='Edit Student'
+				/>
+			</Modal>
+			<ConfirmDialog
+				isOpen={confirmDialogOpen}
+				title='Delete Student'
+				message={`Are you sure you want to delete ${studentToDelete?.firstName} ${studentToDelete?.lastName}?`}
+				confirmText='Delete'
+				onConfirm={handleDeleteConfirm}
+				onCancel={handleDeleteCancel}
+				type='danger'
+			/>
+			<ToastContainer />
+		</div>
   );
 };
 

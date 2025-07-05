@@ -6,113 +6,128 @@ import { ITeacher } from './Teacher'; // Assuming Teacher model interface exists
 
 // Interface for Report Parameters subdocument
 interface IReportParameters {
-  startDate?: Date;
-  endDate?: Date;
-  academicYear?: string;
-  term?: 'First Term' | 'Second Term' | 'Third Term';
-  class?: Types.ObjectId | IClass;
-  subject?: string;
-  student?: Types.ObjectId | IStudent;
-  teacher?: Types.ObjectId | ITeacher;
-  // Add any other relevant parameters
+	startDate?: Date;
+	endDate?: Date;
+	academicYear?: string;
+	term?: 'First Term' | 'Second Term' | 'Third Term';
+	semester?: Types.ObjectId; // Reference to Semester
+	class?: Types.ObjectId | IClass;
+	subject?: string;
+	student?: Types.ObjectId | IStudent;
+	teacher?: Types.ObjectId | ITeacher;
+	// Add any other relevant parameters
 }
 
 // Interface for Chart subdocument
 interface IChart extends Types.Subdocument {
-  type: 'bar' | 'line' | 'pie' | 'scatter' | 'table';
-  title?: string;
-  data: any; // Use a more specific type if possible, e.g., { labels: string[], datasets: any[] }
-  options?: any; // Chart.js options or similar
+	type: 'bar' | 'line' | 'pie' | 'scatter' | 'table';
+	title?: string;
+	data: any; // Use a more specific type if possible, e.g., { labels: string[], datasets: any[] }
+	options?: any; // Chart.js options or similar
 }
 
 // Interface for Metric subdocument
 interface IMetric extends Types.Subdocument {
-  name: string;
-  value: any; // Can be number, string, etc.
-  unit?: string;
-  trend?: 'up' | 'down' | 'stable';
-  percentageChange?: number;
+	name: string;
+	value: any; // Can be number, string, etc.
+	unit?: string;
+	trend?: 'up' | 'down' | 'stable';
+	percentageChange?: number;
 }
 
 // Interface for Insight subdocument
 interface IInsight extends Types.Subdocument {
-  category: string;
-  description: string;
-  recommendations?: string[];
+	category: string;
+	description: string;
+	recommendations?: string[];
 }
 
 // Interface for Export File subdocument
 interface IExportFile {
-  filename: string;
-  path: string;
-  size: number;
+	filename: string;
+	path: string;
+	size: number;
 }
 
 // Interface for Export subdocument
 interface IReportExport {
-  format: 'pdf' | 'excel' | 'csv' | 'json';
-  file?: IExportFile;
-  generatedAt?: Date;
+	format: 'pdf' | 'excel' | 'csv' | 'json';
+	file?: IExportFile;
+	generatedAt?: Date;
 }
 
 // Interface for Schedule subdocument
 interface IReportSchedule {
-  frequency?: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
-  nextRun?: Date;
-  lastRun?: Date;
-  recipients?: (Types.ObjectId | IUser)[];
+	frequency?:
+		| 'daily'
+		| 'weekly'
+		| 'monthly'
+		| 'quarterly'
+		| 'yearly'
+		| 'custom';
+	nextRun?: Date;
+	lastRun?: Date;
+	recipients?: (Types.ObjectId | IUser)[];
 }
 
 // Interface for Previous Version subdocument
 interface IPreviousVersion extends Types.Subdocument {
-  version: number;
-  data: any; // Store the previous report data
-  createdAt: Date;
+	version: number;
+	data: any; // Store the previous report data
+	createdAt: Date;
 }
 
 // Interface for Report document
 export interface IReport extends Document {
-  title: string;
-  type: 'academic' | 'financial' | 'attendance' | 'performance' | 'custom';
-  description?: string;
-  parameters?: IReportParameters;
-  data: any; // The main data payload of the report, structure depends on the report type
-  charts?: Types.DocumentArray<IChart>;
-  metrics?: Types.DocumentArray<IMetric>;
-  insights?: Types.DocumentArray<IInsight>;
-  export?: IReportExport;
-  createdBy: Types.ObjectId | IUser;
-  status: 'draft' | 'generating' | 'completed' | 'archived';
-  schedule?: IReportSchedule;
-  tags?: string[];
-  version: number;
-  previousVersions?: Types.DocumentArray<IPreviousVersion>;
-  createdAt: Date;
-  updatedAt: Date;
+	title: string;
+	type: 'academic' | 'financial' | 'attendance' | 'performance' | 'custom';
+	description?: string;
+	parameters?: IReportParameters;
+	data: any; // The main data payload of the report, structure depends on the report type
+	charts?: Types.DocumentArray<IChart>;
+	metrics?: Types.DocumentArray<IMetric>;
+	insights?: Types.DocumentArray<IInsight>;
+	export?: IReportExport;
+	createdBy: Types.ObjectId | IUser;
+	status: 'draft' | 'generating' | 'completed' | 'archived';
+	schedule?: IReportSchedule;
+	tags?: string[];
+	version: number;
+	previousVersions?: Types.DocumentArray<IPreviousVersion>;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-const reportParametersSchema = new Schema<IReportParameters>({
-  startDate: Date,
-  endDate: Date,
-  academicYear: String,
-  term: {
-    type: String,
-    enum: ['First Term', 'Second Term', 'Third Term']
-  },
-  class: {
-    type: Schema.Types.ObjectId,
-    ref: 'Class'
-  },
-  subject: String,
-  student: {
-    type: Schema.Types.ObjectId,
-    ref: 'Student'
-  },
-  teacher: {
-    type: Schema.Types.ObjectId,
-    ref: 'Teacher'
-  }
-}, { _id: false });
+const reportParametersSchema = new Schema<IReportParameters>(
+	{
+		startDate: Date,
+		endDate: Date,
+		academicYear: String,
+		term: {
+			type: String,
+			enum: ['First Term', 'Second Term', 'Third Term'],
+		},
+		semester: {
+			type: Schema.Types.ObjectId,
+			ref: 'Semester',
+			required: false,
+		},
+		class: {
+			type: Schema.Types.ObjectId,
+			ref: 'Class',
+		},
+		subject: String,
+		student: {
+			type: Schema.Types.ObjectId,
+			ref: 'Student',
+		},
+		teacher: {
+			type: Schema.Types.ObjectId,
+			ref: 'Teacher',
+		},
+	},
+	{ _id: false },
+);
 
 const chartSchema = new Schema<IChart>({
   type: {

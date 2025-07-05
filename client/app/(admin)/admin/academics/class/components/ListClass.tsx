@@ -25,14 +25,13 @@ const ListClass: React.FC<ListClassProps> = ({
 	const [search, setSearch] = useState('');
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage, setItemsPerPage] = useState(10);
-	const [loading, setLoading] = useState(false);
-	// Filtering
+	const [loading, setLoading] = useState(false); // Filtering
 	const filtered = classes.filter(
 		(cls) =>
 			!search ||
 			cls.name.toLowerCase().includes(search.toLowerCase()) ||
 			teachers
-				.find((t) => t.id === cls.teacherId)
+				.find((t) => t.id === cls.classTeacher)
 				?.name.toLowerCase()
 				.includes(search.toLowerCase()),
 	);
@@ -53,17 +52,12 @@ const ListClass: React.FC<ListClassProps> = ({
 		const rows = filtered.map((cls, idx) => [
 			(idx + 1).toString(),
 			cls.name,
-			teachers.find((t) => t.id === cls.teacherId)?.name || '-',
-			cls.tuitionFee.toString(),
+			teachers.find((t) => t.id === cls.classTeacher)?.name || '-',
+			(cls.tuitionFee || 0).toString(),
 		]);
-		const csvContent = [
-			headers,
-			...rows,
-		]
+		const csvContent = [headers, ...rows]
 			.map((r) =>
-				r
-					.map((field) => `"${field.replace(/"/g, '""')}`)
-					.join(','),
+				r.map((field) => `"${field.replace(/"/g, '""')}`).join(','),
 			)
 			.join('\n');
 		const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -111,8 +105,7 @@ const ListClass: React.FC<ListClassProps> = ({
 							className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none'
 							onClick={() => setSearch('')}
 							tabIndex={0}
-							aria-label='Clear search'
-						>
+							aria-label='Clear search'>
 							<FiXIcon />
 						</button>
 					)}
@@ -122,7 +115,10 @@ const ListClass: React.FC<ListClassProps> = ({
 			<div className='relative max-h-96 min-h-[200px] overflow-x-auto overflow-y-auto rounded-lg border border-gray-100 mb-4'>
 				{loading ? (
 					<div className='absolute inset-0 z-10 flex items-center justify-center bg-white bg-opacity-70 rounded-md'>
-						<Loading message='Refreshing classes...' size='medium' />
+						<Loading
+							message='Refreshing classes...'
+							size='medium'
+						/>
 					</div>
 				) : filtered.length === 0 ? (
 					<EmptyState
@@ -151,46 +147,48 @@ const ListClass: React.FC<ListClassProps> = ({
 							</tr>
 						</thead>
 						<tbody>
+							{' '}
 							{paginatedClasses.map((cls, idx) => {
 								const teacher = teachers.find(
-									(t) => t.id === cls.teacherId,
+									(t) => t.id === cls.classTeacher,
 								);
 								return (
 									<tr
 										key={cls.id}
-										className='border-t border-gray-100 hover:bg-emerald-50 transition-colors'
-									>
+										className='border-t border-gray-100 hover:bg-emerald-50 transition-colors'>
 										<td className='px-4 py-2'>
 											{indexOfFirstItem + idx + 1}
 										</td>
-										<td className='px-4 py-2'>{cls.name}</td>
+										<td className='px-4 py-2'>
+											{cls.name}
+										</td>
 										<td className='px-4 py-2'>
 											{teacher ? teacher.name : '-'}
 										</td>
 										<td className='px-4 py-2'>
-											{cls.tuitionFee.toLocaleString(
-												undefined,
-												{
-													style: 'currency',
-													currency: 'USD',
-												},
-											)}
+											{(
+												cls.tuitionFee || 0
+											).toLocaleString(undefined, {
+												style: 'currency',
+												currency: 'USD',
+											})}
 										</td>
 										<td className='px-4 py-2 flex space-x-2'>
 											<button
 												className='bg-purple-300 hover:bg-purple-400 text-white p-2 rounded-full transition-colors duration-150'
 												title='Edit'
-												onClick={() => onEdit && onEdit(cls)}
-											>
+												onClick={() =>
+													onEdit && onEdit(cls)
+												}>
 												<FiEdit2 />
 											</button>
 											<button
 												className='bg-gray-600 hover:bg-gray-700 text-white p-2 rounded-full transition-colors duration-150'
 												title='Delete'
 												onClick={() =>
-													onRequestDelete && onRequestDelete(cls)
-												}
-											>
+													onRequestDelete &&
+													onRequestDelete(cls)
+												}>
 												<FiTrash2 />
 											</button>
 										</td>
@@ -214,20 +212,15 @@ const ListClass: React.FC<ListClassProps> = ({
 							setItemsPerPage(Number(e.target.value));
 							setCurrentPage(1);
 						}}
-						title='Select rows per page'
-					>
+						title='Select rows per page'>
 						<option value={5}>5</option>
 						<option value={10}>10</option>
 						<option value={25}>25</option>
 						<option value={50}>50</option>
 					</select>
 					<span className='ml-4 text-sm text-gray-700'>
-						Showing{' '}
-						{filtered.length > 0
-							? indexOfFirstItem + 1
-							: 0}
-						-
-						{Math.min(indexOfLastItem, filtered.length)} of{' '}
+						Showing {filtered.length > 0 ? indexOfFirstItem + 1 : 0}
+						-{Math.min(indexOfLastItem, filtered.length)} of{' '}
 						{filtered.length}
 					</span>
 				</div>
@@ -235,8 +228,7 @@ const ListClass: React.FC<ListClassProps> = ({
 					<button
 						className='px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50'
 						disabled={currentPage === 1}
-						onClick={() => setCurrentPage(currentPage - 1)}
-					>
+						onClick={() => setCurrentPage(currentPage - 1)}>
 						Previous
 					</button>
 					{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -258,17 +250,17 @@ const ListClass: React.FC<ListClassProps> = ({
 										? 'bg-emerald-600 text-white'
 										: 'bg-gray-100 text-gray-600 hover:bg-gray-200'
 								}`}
-								onClick={() => setCurrentPage(pageNum)}
-							>
+								onClick={() => setCurrentPage(pageNum)}>
 								{pageNum}
 							</button>
 						);
 					})}
 					<button
 						className='px-3 py-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50'
-						disabled={currentPage === totalPages || totalPages === 0}
-						onClick={() => setCurrentPage(currentPage + 1)}
-					>
+						disabled={
+							currentPage === totalPages || totalPages === 0
+						}
+						onClick={() => setCurrentPage(currentPage + 1)}>
 						Next
 					</button>
 				</div>

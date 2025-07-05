@@ -58,6 +58,11 @@ const navItems = [
 				href: '/school/inquiries',
 				label: 'School Inquiries',
 			},
+			{
+				id: 'assign-school',
+				href: '/school/assign',
+				label: 'Assign School',
+			},
 		],
 	},
 	{

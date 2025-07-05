@@ -7,7 +7,7 @@ import Loading from '@/components/Loading';
 
 
 interface Section {
-	id: number;
+	id: string;
 	name: string;
 	trashed?: boolean;
 }
@@ -18,13 +18,13 @@ interface ListSectionsProps {
 	search: string;
 	currentPage: number;
 	itemsPerPage: number;
-	editingId: number | null;
+	editingId: string | null;
 	editName: string;
-	onEdit: (id: number, name: string) => void;
+	onEdit: (id: string, name: string) => void;
 	onEditChange: (name: string) => void;
-	onEditSubmit: (id: number) => void;
-	onDelete: (id: number) => void;
-	onRestore: (id: number) => void;
+	onEditSubmit: (id: string) => void;
+	onDelete: (id: string) => void;
+	onRestore: (id: string) => void;
 	onTabChange: (tab: 'all' | 'trashed') => void;
 	onSearchChange: (search: string) => void;
 	onPageChange: (page: number) => void;
@@ -69,17 +69,16 @@ const ListSections: React.FC<ListSectionsProps> = ({
 		indexOfLastItem,
 	);
 	const totalPages = Math.ceil(filteredSections.length / itemsPerPage);
-
 	// Show toast helpers
-	const handleEditSubmitWithToast = (id: number) => {
+	const handleEditSubmitWithToast = (id: string) => {
 		onEditSubmit(id);
 	};
-	const handleDeleteWithToast = (id: number) => {
+	const handleDeleteWithToast = (id: string) => {
 		onDelete(id);
 	};
-	const handleRestoreWithToast = (id: number) => {
-        onRestore(id);
-    };
+	const handleRestoreWithToast = (id: string) => {
+		onRestore(id);
+	};
 
 	return (
 		<div className='bg-white rounded-lg shadow p-6 relative'>

@@ -11,7 +11,7 @@ import Loading from '@/components/Loading';
 import EmptyState from '@/components/EmptyState';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import HeadingWithBadge from '@/components/HeadingWithBadge';
-import { useToast } from '@/providers/ToastProvider';
+import { showToast } from '@/components/ToastContainer';
 import { SchoolService } from './services/SchoolService';
 import { School } from '@/types/school';
 
@@ -31,7 +31,6 @@ const SchoolListPage = () => {
 	const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
 	const router = useRouter();
-	const { showToast: toast } = useToast();
 
 	// Fetch schools on component mount
 	useEffect(() => {
@@ -98,7 +97,7 @@ const SchoolListPage = () => {
 			}
 		} catch (error) {
 			console.error('Failed to fetch school details:', error);
-			toast('Failed to load school details.', 'error');
+			showToast('Failed to load school details.', 'error');
 		}
 	};
 
@@ -128,11 +127,11 @@ const SchoolListPage = () => {
 						(school) => school.id !== schoolToDelete,
 					),
 				);
-				toast('School deleted successfully.', 'success');
+				showToast('School deleted successfully.', 'success');
 			}
 		} catch (error) {
 			console.error('Failed to delete school:', error);
-			toast('Failed to delete school.', 'error');
+			showToast('Failed to delete school.', 'error');
 		} finally {
 			setDeleteConfirmOpen(false);
 			setSchoolToDelete(null);
@@ -145,10 +144,10 @@ const SchoolListPage = () => {
 			const data = await SchoolService.getSchools();
 			setSchools(data);
 			setFilteredSchools(data);
-			toast('Schools refreshed successfully.', 'success');
+			showToast('Schools refreshed successfully.', 'success');
 		} catch (error) {
 			console.error('Failed to refresh schools:', error);
-			toast('Failed to refresh schools.', 'error');
+			showToast('Failed to refresh schools.', 'error');
 		} finally {
 			setLoading(false);
 		}
@@ -157,10 +156,10 @@ const SchoolListPage = () => {
 	const handleExport = async (type: string) => {
 		try {
 			await SchoolService.exportSchools(type);
-			toast(`Exporting data as ${type}...`, 'success');
+			showToast(`Exporting data as ${type}...`, 'success');
 		} catch (error) {
 			console.error('Failed to export schools:', error);
-			toast('Failed to export schools.', 'error');
+			showToast('Failed to export schools.', 'error');
 		}
 	};
 
@@ -170,30 +169,6 @@ const SchoolListPage = () => {
 		setItemsPerPage(Number(e.target.value));
 		setCurrentPage(1); // Reset to first page when changing items per page
 	};
-
-	// const handleCreateSchool = async (schoolData: Omit<School, 'id'>) => {
-	// 	try {
-	// 		const newSchool = await SchoolService.createSchool(schoolData);
-	// 		setSchools((prev) => [...prev, newSchool]);
-	// 		setFilteredSchools((prev) => [...prev, newSchool]);
-	// 		toast('School created successfully.', 'success');
-	// 	} catch (error) {
-	// 		toast('Failed to create school.', 'error');
-	// 	}
-	// };
-
-	// const handleUpdateSchool = async (id: number, schoolData: Partial<School>) => {
-	// 	try {
-	// 		const updatedSchool = await SchoolService.updateSchool(id, schoolData);
-	// 		if (updatedSchool) {
-	// 			setSchools((prev) => prev.map((s) => (s.id === id ? updatedSchool : s)));
-	// 			setFilteredSchools((prev) => prev.map((s) => (s.id === id ? updatedSchool : s)));
-	// 			toast('School updated successfully.', 'success');
-	// 		}
-	// 	} catch (error) {
-	// 		toast('Failed to update school.', 'error');
-	// 	}
-	// };
 
 	// Calculate pagination
 	const indexOfLastItem = currentPage * itemsPerPage;
@@ -297,7 +272,12 @@ const SchoolListPage = () => {
 			<ConfirmDialog
 				isOpen={deleteConfirmOpen}
 				title='Delete School'
-				message='Are you sure you want to delete this school? This action cannot be undone.'
+				message={(() => {
+					const school = schools.find(s => s.id === schoolToDelete);
+					return school
+						? `Are you sure you want to delete ${school.name}? This action cannot be undone.`
+						: 'Are you sure you want to delete this school? This action cannot be undone.';
+				})()}
 				confirmText='Delete School'
 				cancelText='Cancel'
 				onConfirm={confirmDeleteSchool}

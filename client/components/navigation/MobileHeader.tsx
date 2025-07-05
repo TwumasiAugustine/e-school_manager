@@ -55,6 +55,11 @@ const navLinks = [
 				href: '/school/add',
 				label: 'Add School',
 			},
+			{
+				id: 'assign-school',
+				href: '/school/assign',
+				label: 'Assign School'
+			}
 		],
 	},
 	{

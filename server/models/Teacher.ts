@@ -29,157 +29,211 @@ interface ISchedulePeriod {
 
 // Interface for Daily Schedule subdocument
 interface IDailySchedule extends Types.Subdocument {
-  day: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday';
-  periods?: ISchedulePeriod[];
+	day:
+		| 'Monday'
+		| 'Tuesday'
+		| 'Wednesday'
+		| 'Thursday'
+		| 'Friday'
+		| 'Saturday';
+	periods?: ISchedulePeriod[];
+	semester?: Types.ObjectId;
 }
 
 // Interface for Teacher Document subdocument
 interface ITeacherDocument extends Types.Subdocument {
-  type: string; // e.g., 'resume', 'certificate', 'id'
-  name: string;
-  url: string; // URL to the stored document
-  uploadedAt: Date;
+	type: string; // e.g., 'resume', 'certificate', 'id'
+	name: string;
+	url: string; // URL to the stored document
+	uploadedAt: Date;
 }
 
 // Interface for Performance Evaluation subdocument
 interface IPerformanceEvaluation extends Types.Subdocument {
-  date: Date;
-  evaluator?: Types.ObjectId | IUser;
-  rating?: number; // e.g., 1-5 scale
-  comments?: string;
-  areasOfImprovement?: string[];
+	date: Date;
+	evaluator?: Types.ObjectId | IUser;
+	rating?: number; // e.g., 1-5 scale
+	comments?: string;
+	areasOfImprovement?: string[];
+	semester?: Types.ObjectId;
 }
 
 // Interface for Performance subdocument
 interface ITeacherPerformance {
-  evaluations?: Types.DocumentArray<IPerformanceEvaluation>;
-  averageRating?: number;
+	evaluations?: Types.DocumentArray<IPerformanceEvaluation>;
+	averageRating?: number;
 }
 
 // Interface for Responsibility subdocument
 interface IResponsibility extends Types.Subdocument {
-  type: string; // e.g., 'Class Teacher', 'Subject Coordinator', 'Club Advisor'
-  description?: string;
+	type: string; // e.g., 'Class Teacher', 'Subject Coordinator', 'Club Advisor'
+	description?: string;
+	semester?: Types.ObjectId;
 }
 
 // Interface for Achievement subdocument
 interface ITeacherAchievement extends Types.Subdocument {
-  title: string;
-  date: Date;
-  description?: string;
+	title: string;
+	date: Date;
+	description?: string;
+	semester?: Types.ObjectId;
 }
 
 // Interface for Professional Development subdocument
 interface IProfessionalDevelopment extends Types.Subdocument {
-  course: string;
-  provider?: string;
-  date: Date;
-  duration?: string;
-  certificate?: string; // URL or reference to certificate
+	course: string;
+	provider?: string;
+	date: Date;
+	duration?: string;
+	certificate?: string; // URL or reference to certificate
+	semester?: Types.ObjectId;
 }
 
 // Interface for Teacher document
 export interface ITeacher extends Document {
-  user: Types.ObjectId | IUser; // Link to the User model
-  employeeId: string; // Unique employee identifier
-  department: 'Mathematics' | 'Science' | 'English' | 'History' | 'Arts' | 'Physical Education' | 'Computer Science' | 'Languages' | 'Special Education' | 'Other';
-  subjects: string[];
-  classes?: (Types.ObjectId | IClass)[]; // Classes the teacher is assigned to
-  qualifications?: Types.DocumentArray<IQualification>;
-  experience?: Types.DocumentArray<IExperience>;
-  schedule?: Types.DocumentArray<IDailySchedule>;
-  documents?: Types.DocumentArray<ITeacherDocument>;
-  performance?: ITeacherPerformance;
-  status: 'active' | 'inactive' | 'on_leave' | 'resigned';
-  responsibilities?: Types.DocumentArray<IResponsibility>;
-  achievements?: Types.DocumentArray<ITeacherAchievement>;
-  professionalDevelopment?: Types.DocumentArray<IProfessionalDevelopment>;
-  createdAt: Date;
-  updatedAt: Date;
+	user: Types.ObjectId | IUser; // Link to the User model
+	employeeId: string; // Unique employee identifier
+	department:
+		| 'Mathematics'
+		| 'Science'
+		| 'English'
+		| 'History'
+		| 'Arts'
+		| 'Physical Education'
+		| 'Computer Science'
+		| 'Languages'
+		| 'Special Education'
+		| 'Other';
+	subjects: string[];
+	classes?: (Types.ObjectId | IClass)[]; // Classes the teacher is assigned to
+	qualifications?: Types.DocumentArray<IQualification>;
+	experience?: Types.DocumentArray<IExperience>;
+	schedule?: Types.DocumentArray<IDailySchedule>;
+	documents?: Types.DocumentArray<ITeacherDocument>;
+	performance?: ITeacherPerformance;
+	status: 'active' | 'inactive' | 'on_leave' | 'resigned';
+	responsibilities?: Types.DocumentArray<IResponsibility>;
+	achievements?: Types.DocumentArray<ITeacherAchievement>;
+	professionalDevelopment?: Types.DocumentArray<IProfessionalDevelopment>;
+	createdAt: Date;
+	updatedAt: Date;
 
-  // Virtuals
-  totalExperience: number;
+	// Virtuals
+	totalExperience: number;
 }
 
 const qualificationSchema = new Schema<IQualification>({
-  degree: { type: String, required: true },
-  institution: { type: String, required: true },
-  year: Number,
-  specialization: String
+	degree: { type: String, required: true },
+	institution: { type: String, required: true },
+	year: Number,
+	specialization: String,
 });
 
 const experienceSchema = new Schema<IExperience>({
-  school: { type: String, required: true },
-  position: { type: String, required: true },
-  startDate: { type: Date, required: true },
-  endDate: Date,
-  responsibilities: [String]
+	school: { type: String, required: true },
+	position: { type: String, required: true },
+	startDate: { type: Date, required: true },
+	endDate: Date,
+	responsibilities: [String],
 });
 
-const schedulePeriodSchema = new Schema<ISchedulePeriod>({
-    startTime: { type: String, required: true }, // Consider using a more specific time format or Date
-    endTime: { type: String, required: true },
-    class: {
-      type: Schema.Types.ObjectId,
-      ref: 'Class'
-    },
-    subject: String
-}, { _id: false });
+const schedulePeriodSchema = new Schema<ISchedulePeriod>(
+	{
+		startTime: { type: String, required: true }, // Consider using a more specific time format or Date
+		endTime: { type: String, required: true },
+		class: {
+			type: Schema.Types.ObjectId,
+			ref: 'Class',
+		},
+		subject: String,
+	},
+	{ _id: false },
+);
 
 const dailyScheduleSchema = new Schema<IDailySchedule>({
-  day: {
-    type: String,
-    enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    required: true
-  },
-  periods: [schedulePeriodSchema]
+	day: {
+		type: String,
+		enum: [
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+		],
+		required: true,
+	},
+	periods: [schedulePeriodSchema],
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
 const teacherDocumentSchema = new Schema<ITeacherDocument>({
-  type: { type: String, required: true },
-  name: { type: String, required: true },
-  url: { type: String, required: true },
-  uploadedAt: { type: Date, default: Date.now }
+	type: { type: String, required: true },
+	name: { type: String, required: true },
+	url: { type: String, required: true },
+	uploadedAt: { type: Date, default: Date.now },
 });
 
 const performanceEvaluationSchema = new Schema<IPerformanceEvaluation>({
-  date: { type: Date, required: true },
-  evaluator: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  rating: { type: Number, min: 1, max: 5 }, // Example scale
-  comments: String,
-  areasOfImprovement: [String]
+	date: { type: Date, required: true },
+	evaluator: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+	},
+	rating: { type: Number, min: 1, max: 5 }, // Example scale
+	comments: String,
+	areasOfImprovement: [String],
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
-const teacherPerformanceSchema = new Schema<ITeacherPerformance>({
-  evaluations: [performanceEvaluationSchema],
-  averageRating: {
-    type: Number,
-    default: 0,
-    min: 0,
-    // Consider calculating this via hook or virtual based on evaluations
-  }
-}, { _id: false });
+const teacherPerformanceSchema = new Schema<ITeacherPerformance>(
+	{
+		evaluations: [performanceEvaluationSchema],
+		averageRating: {
+			type: Number,
+			default: 0,
+			min: 0,
+			// Consider calculating this via hook or virtual based on evaluations
+		},
+	},
+	{ _id: false },
+);
 
 const responsibilitySchema = new Schema<IResponsibility>({
-  type: { type: String, required: true },
-  description: String
+	type: { type: String, required: true },
+	description: String,
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
 const teacherAchievementSchema = new Schema<ITeacherAchievement>({
-  title: { type: String, required: true },
-  date: { type: Date, required: true },
-  description: String
+	title: { type: String, required: true },
+	date: { type: Date, required: true },
+	description: String,
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
 const professionalDevelopmentSchema = new Schema<IProfessionalDevelopment>({
-  course: { type: String, required: true },
-  provider: String,
-  date: { type: Date, required: true },
-  duration: String,
-  certificate: String // URL or path
+	course: { type: String, required: true },
+	provider: String,
+	date: { type: Date, required: true },
+	duration: String,
+	certificate: String, // URL or path
+	semester: {
+		type: Schema.Types.ObjectId,
+		ref: 'Semester',
+	},
 });
 
 
