@@ -21,10 +21,8 @@ const handleSubmit = async (form: Record<string, string>) => {
 			address: form.address,
 			plan: 'Basic', // or from form if needed
 			isEmailVerified: false,
-			adminName: form.adminName,
-			adminEmail: form.adminEmail,
-			adminPhone: form.adminPhone,
-			adminPassword: form.adminPassword,
+			adminName: '',
+			adminEmail: ''
 		});
 		router.push('/super_admin/school/list');
 	} finally {

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import type { StaticImageData } from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
@@ -58,8 +58,32 @@ const navLinks = [
 			{
 				id: 'assign-school',
 				href: '/school/assign',
-				label: 'Assign School'
-			}
+				label: 'Assign School',
+			},
+		],
+	},
+	{
+		id: 'admin',
+		href: '#',
+		icon: FiUsers,
+		label: 'Admins',
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'admin-list',
+				href: '/admin/list',
+				label: 'Admin List',
+			},
+			{
+				id: 'add-admin',
+				href: '/admin/add',
+				label: 'Add Admin',
+			},
+			{
+				id: 'manage-admins',
+				href: '/admin/manage',
+				label: 'Manage Admins',
+			},
 		],
 	},
 	{
@@ -285,7 +309,7 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({
 		super_admin: [
 			'dashboard',
 			'school',
-			'academics',
+			'admin',
 			'subscription',
 			'settings',
 			'profile',

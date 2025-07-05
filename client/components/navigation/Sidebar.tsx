@@ -66,6 +66,30 @@ const navItems = [
 		],
 	},
 	{
+		id: 'admin',
+		href: '#',
+		icon: FiUsers,
+		label: 'Admins',
+		hasSubmenu: true,
+		submenu: [
+			{
+				id: 'admin-list',
+				href: '/admin/list',
+				label: 'Admin List',
+			},
+			{
+				id: 'add-admin',
+				href: '/admin/add',
+				label: 'Add Admin',
+			},
+			{
+				id: 'manage-admins',
+				href: '/admin/manage',
+				label: 'Manage Admins',
+			},
+		],
+	},
+	{
 		id: 'student',
 		href: '/student',
 		icon: FiUsers,
@@ -260,7 +284,7 @@ const roleBasedNavItems = {
 	super_admin: [
 		'dashboard',
 		'school',
-		'academics',
+		'admin',
 		'subscription',
 		'settings',
 		'profile',
